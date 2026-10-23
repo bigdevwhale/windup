@@ -128,7 +128,7 @@ fun ShopScreen(h: Home, onEx: (Ex, Boolean) -> Unit, onSettings: () -> Unit) {
         Panel {
             if (s.bag.built) {
                 Text(w.t("Акробат собран", "The acrobat is built"), style = T.Title)
-                Text(w.t("Его упражнения — тяга: полотенце, турник, вис. Он на нижней полке.", "His movements are pulls: a towel, a bar, a hang. He's on the bottom shelf."), style = T.Small)
+                Text(w.t("Его упражнения — тяга: полотенце, турник, вис. Он уже на полке.", "His movements are pulls: a towel, a bar, a hang. He's on the shelf."), style = T.Small)
             } else {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ToyIcon(Toy.ACRO, false, 0f, 1.25f, sil = 0x7a5a3e)

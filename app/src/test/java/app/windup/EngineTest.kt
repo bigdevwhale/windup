@@ -258,5 +258,11 @@ class EngineTest {
         assertFalse(Engine.canBuyFair(s, a, sat)) // once only
         assertEquals(1000 - Rules.FAIR_PRICE.getValue(a).first - Rules.FAIR_PRICE.getValue(b).first, s.gears)
         assertEquals(s.bag, Bags.read(Bags.write(s.bag).associate { it.k to it.v }))
+        // A toy bought today comes home clean, however long the shelf has stood.
+        val old = State(emptyList(), Bag(start = 1, bonusGears = 1000, bonusSprings = 50))
+        val now = sat.atStartOfDay(zone).toInstant().toEpochMilli()
+        val got = old.copy(bag = Engine.buyFair(old, a, sat, now))
+        assertEquals(0f, Engine.rust(got, a, now + 3600_000L), 1e-4f)
+        assertFalse(Engine.jammed(got, a, now + 3600_000L))
     }
 }

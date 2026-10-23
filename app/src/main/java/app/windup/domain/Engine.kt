@@ -109,7 +109,7 @@ object Engine {
     /** Rust for a toy left alone: none for three days, all over after seventeen. */
     fun rust(s: State, t: Toy, now: Long): Float {
         if (!s.available(t)) return 0f
-        val since = s.last(t)?.at ?: s.bag.start.takeIf { it > 0 } ?: return 0f
+        val since = listOfNotNull(s.last(t)?.at, s.bag.boughtAt[t]).maxOrNull() ?: s.bag.start.takeIf { it > 0 } ?: return 0f
         val days = (now - since) / Rules.DAY_MS.toDouble()
         return ((days - Rules.RUST_FREE_DAYS) / (Rules.RUST_FULL_DAYS - Rules.RUST_FREE_DAYS)).coerceIn(0.0, 1.0).toFloat()
     }
@@ -249,10 +249,10 @@ object Engine {
         return fairOpen(date) && (t == a || t == b) && t !in s.bag.bought && s.gears >= g && s.springs >= sp
     }
 
-    fun buyFair(s: State, t: Toy, date: LocalDate): Bag {
+    fun buyFair(s: State, t: Toy, date: LocalDate, now: Long = 0): Bag {
         require(canBuyFair(s, t, date))
         val (g, sp) = Rules.FAIR_PRICE.getValue(t)
-        return s.bag.copy(bought = s.bag.bought + t, spentGears = s.bag.spentGears + g, spentSprings = s.bag.spentSprings + sp)
+        return s.bag.copy(bought = s.bag.bought + t, boughtAt = s.bag.boughtAt + (t to now), spentGears = s.bag.spentGears + g, spentSprings = s.bag.spentSprings + sp)
     }
 
     fun canBuild(s: State) = !s.bag.built && s.gears >= Rules.ACRO_GEARS && s.springs >= Rules.ACRO_SPRINGS

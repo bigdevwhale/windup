@@ -92,6 +92,8 @@ data class Bag(
     val jam: Map<Toy, Pair<Long, Int>> = emptyMap(),
     /** Fair toys bought, in the order they came home: that's their order on the new shelves. */
     val bought: List<Toy> = emptyList(),
+    /** When each fair toy came home: its rust counts from then. */
+    val boughtAt: Map<Toy, Long> = emptyMap(),
 )
 
 data class State(val pins: List<Pin>, val bag: Bag) {

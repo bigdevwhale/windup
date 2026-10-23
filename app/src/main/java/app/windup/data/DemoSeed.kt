@@ -66,7 +66,8 @@ object DemoSeed {
         }
         // A shelf worth showing: the frog already gilt, the monkey in silver.
         val b = s.bag.copy(paints = setOf(Toy.FROG, Toy.SOLDIER), painted = setOf(Toy.SOLDIER), capsules = 2, dailyDay = today.toEpochDay(),
-            alloys = s.bag.alloys + mapOf(Toy.FROG to 4, Toy.MONKEY to 3), bought = listOf(Toy.SKIER, Toy.DIVER))
+            alloys = s.bag.alloys + mapOf(Toy.FROG to 4, Toy.MONKEY to 3), bought = listOf(Toy.SKIER, Toy.DIVER),
+            boughtAt = mapOf(Toy.SKIER to now - 6 * 24 * 3600_000L, Toy.DIVER to now - 2 * 24 * 3600_000L))
         return s.pins to b
     }
 }
