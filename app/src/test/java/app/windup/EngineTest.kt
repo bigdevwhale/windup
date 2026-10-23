@@ -148,7 +148,8 @@ class EngineTest {
 
     @Test fun the_bag_survives_the_disk() {
         val b = Bag(start = 5, spentGears = 15, bonusSprings = 2, capsules = 3, dailyDay = 20000, built = true,
-            paints = setOf(Toy.FROG, Toy.BIRD), painted = setOf(Toy.BIRD), steps = mapOf("frog.chair" to 3), kit = setOf(Kit.BAR, Kit.ROPE))
+            paints = setOf(Toy.FROG, Toy.BIRD), painted = setOf(Toy.BIRD), steps = mapOf("frog.chair" to 3), kit = setOf(Kit.BAR, Kit.ROPE),
+            alloys = mapOf(Toy.FROG to 2, Toy.ACRO to 4), records = 5, scoreDay = 20001, paradeDay = 20002, jam = mapOf(Toy.BEAR to (20003L to 2)))
         assertEquals(b, Bags.read(Bags.write(b).associate { it.k to it.v }))
         assertEquals(Bag(), Bags.read(emptyMap()))
     }
@@ -175,5 +176,59 @@ class EngineTest {
         assertTrue(pins.all { it.at < now })
         assertTrue(s.gears >= 0 && s.springs >= 0)
         assertTrue(pins.any { it.over })
+    }
+
+    @Test fun a_score_played_in_its_quarters_wins_a_record() {
+        val wake = Wake(7 * 60, 23 * 60)
+        val notes = Engine.score(State.EMPTY, day, wake)
+        assertEquals(4, notes.size)
+        assertEquals(4, notes.map { it.toy }.toSet().size)
+        assertEquals(notes, Engine.score(State.EMPTY, day, wake))
+        var s = State.EMPTY
+        var last: app.windup.domain.Outcome? = null
+        for (n in notes) {
+            val e = Catalog.of(n.toy).first()
+            val m = wake.from + (n.from + n.to) / 2
+            s.add(e, e.target, at(m / 60, m % 60)).also { s = it.first; last = it.second }
+        }
+        // The add helper uses the default waking day, the same as here.
+        assertEquals(0, last!!.record)
+        assertEquals(1, s.bag.records)
+        // Paid once a day.
+        val (_, again) = s.add(chair, 10, at(22, 50))
+        assertNull(again.record)
+    }
+
+    @Test fun every_toy_in_a_day_parades() {
+        var s = State.EMPTY
+        var o: app.windup.domain.Outcome? = null
+        s.toys.forEachIndexed { i, t -> s.add(Catalog.of(t).first(), 5, at(7 + i, 40)).also { s = it.first; o = it.second } }
+        assertTrue(o!!.parade)
+        assertEquals(1, s.bag.capsules - s.pins.size / Rules.CAPSULE_EVERY)
+    }
+
+    @Test fun a_jammed_toy_stands_up_after_three_sets_in_a_day() {
+        val (s0, _) = State.EMPTY.add(chair, 10, at(9))
+        val later = at(9) + 20 * Rules.DAY_MS
+        assertTrue(Engine.jammed(s0, Toy.FROG, later))
+        var s = s0
+        val reps = (0 until 3).map { i -> s.add(chair, 10, later + i * 3 * 3600_000L).also { s = it.first }.second }
+        assertEquals(listOf(1, 2, 3), reps.map { it.repair })
+        assertTrue(reps.last().freed)
+        assertFalse(Engine.jammed(s, Toy.FROG, later + 10 * 3600_000L))
+    }
+
+    @Test fun metals_need_parts_and_practice() {
+        val rich = Bag(bonusGears = 2000, bonusSprings = 100)
+        assertFalse(Engine.canAlloy(State(emptyList(), rich), Toy.FROG)) // no sets with it yet
+        var s = State.EMPTY
+        repeat(10) { i -> s.add(chair, 10, at(7, 0) + i * 3 * 3600_000L).also { s = it.first } }
+        s = s.copy(bag = s.bag.copy(bonusGears = 2000, bonusSprings = 100))
+        assertTrue(Engine.canAlloy(s, Toy.FROG))
+        val g = s.gears
+        s = s.copy(bag = Engine.alloy(s, Toy.FROG))
+        assertEquals(1, s.alloy(Toy.FROG))
+        assertEquals(g - Rules.ALLOY_GEARS[0], s.gears)
+        assertFalse(Engine.canAlloy(s, Toy.FROG)) // copper needs 30 sets
     }
 }

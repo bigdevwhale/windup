@@ -72,6 +72,15 @@ data class Bag(
     /** Ladder step per exercise key, where it moved from the catalogue's start. */
     val steps: Map<String, Int> = emptyMap(),
     val kit: Set<Kit> = setOf(Kit.BACKPACK),
+    /** Each toy's metal: 0 tin, then brass, copper, silver, gold. */
+    val alloys: Map<Toy, Int> = emptyMap(),
+    /** Records won by finished scores; the album fills in order. */
+    val records: Int = 0,
+    /** The epoch days today's score and parade were last paid for. */
+    val scoreDay: Long = -1,
+    val paradeDay: Long = -1,
+    /** Toys jammed by long neglect, with the day and count of repair sets done towards freeing them. */
+    val jam: Map<Toy, Pair<Long, Int>> = emptyMap(),
 )
 
 data class State(val pins: List<Pin>, val bag: Bag) {
@@ -83,6 +92,10 @@ data class State(val pins: List<Pin>, val bag: Bag) {
     val toys get() = Toy.entries.filter { available(it) }
     fun step(e: Ex) = (bag.steps[e.key] ?: e.step0).coerceIn(0, (e.ladder.size - 1).coerceAtLeast(0))
     fun painted(t: Toy) = t in bag.painted
+    fun alloy(t: Toy) = bag.alloys[t] ?: 0
+
+    /** Sets done with a toy, the overwound ones aside: how well the movement is known. */
+    fun mastery(t: Toy) = pins.count { it.toy == t && !it.over }
 
     companion object {
         val EMPTY = State(emptyList(), Bag())

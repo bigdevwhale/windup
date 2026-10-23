@@ -1,5 +1,6 @@
 package app.windup.ui.art
 
+import app.windup.domain.Rules
 import app.windup.domain.Toy
 import kotlin.math.PI
 import kotlin.math.abs
@@ -27,6 +28,11 @@ object Pal {
     val orange = Ramp(0xffbc7c, 0xec7e30, 0xb4541c, 0x6a2e0e)
     val black = Ramp(0x70707e, 0x383842, 0x1e1e26, 0x0c0c10)
     val gold = Ramp(0xfff8c8, 0xffd24a, 0xd09a28, 0x8a5c10)
+    val copper = Ramp(0xffc49a, 0xd9824a, 0x9c5229, 0x5e2e14)
+    val tin = Ramp(0xe6e2d8, 0xa9a49a, 0x6f6a62, 0x45413b)
+
+    /** The metal of each alloy step, for keys and plates: tin, brass, copper, silver, gold. */
+    val metals = listOf(tin, brass, copper, silver, gold)
 }
 
 /** A toy's moving state: its cycle, its key, and where it is on its stretch of shelf. */
@@ -81,29 +87,33 @@ fun limb(b: Buf, x0: Int, y0: Int, x1: Int, y1: Int, r: Ramp) {
 
 /** The wind-up key. Its bow narrows with the cosine of its turn, which reads as a key turning in depth. */
 object Key {
-    private fun bows(vertical: Boolean): Pair<Buf, Buf> {
+    private fun bows(vertical: Boolean, m: Ramp): Pair<Buf, Buf> {
         val g = if (vertical) Buf(5, 10) else Buf(10, 5)
         val (a, b) = if (vertical) (2.5 to 2.5) to (2.5 to 7.5) else (2.5 to 2.5) to (7.5 to 2.5)
-        g.ell(a.first, a.second, 2.5, 2.5, Pal.brass, spec = true)
-        g.ell(b.first, b.second, 2.5, 2.5, Pal.brass, spec = true)
-        g.set(a.first.toInt(), a.second.toInt(), Pal.brass[3]); g.set(b.first.toInt(), b.second.toInt(), Pal.brass[3])
-        return g.outlined() to g.darker(Pal.brass).outlined()
+        g.ell(a.first, a.second, 2.5, 2.5, m, spec = true)
+        g.ell(b.first, b.second, 2.5, 2.5, m, spec = true)
+        g.set(a.first.toInt(), a.second.toInt(), m[3]); g.set(b.first.toInt(), b.second.toInt(), m[3])
+        return g.outlined() to g.darker(m).outlined()
     }
 
-    private val v = bows(true)
-    private val h = bows(false)
+    private val v = Pal.metals.map { bows(true, it) }
+    private val h = Pal.metals.map { bows(false, it) }
+
+    /** The metal the next keys are drawn in, set per toy by its alloy. */
+    var metal = 1
 
     fun draw(b: Buf, x: Int, y: Int, side: Boolean, kph: Double) {
+        val m = Pal.metals[metal]
         val c = cos(kph)
         val k = max(.16, abs(c))
         if (side) {
-            bp(b, x, y - 2, INK, 7, 4); bp(b, x, y - 1, Pal.brass[1], 6, 1); bp(b, x, y, Pal.brass[3], 6, 1)
+            bp(b, x, y - 2, INK, 7, 4); bp(b, x, y - 1, m[1], 6, 1); bp(b, x, y, m[3], 6, 1)
             val hh = max(2, 2 * rnd(6 * k))
-            b.drawScaled(if (c >= 0) v.first else v.second, x + 6, y - hh / 2, 7, hh)
+            b.drawScaled(if (c >= 0) v[metal].first else v[metal].second, x + 6, y - hh / 2, 7, hh)
         } else {
-            bp(b, x - 2, y - 7, INK, 4, 8); bp(b, x - 1, y - 7, Pal.brass[1], 1, 7); bp(b, x, y - 7, Pal.brass[3], 1, 7)
+            bp(b, x - 2, y - 7, INK, 4, 8); bp(b, x - 1, y - 7, m[1], 1, 7); bp(b, x, y - 7, m[3], 1, 7)
             val ww = max(2, 2 * rnd(6 * k))
-            b.drawScaled(if (c >= 0) h.first else h.second, x - ww / 2, y - 13, ww, 7)
+            b.drawScaled(if (c >= 0) h[metal].first else h[metal].second, x - ww / 2, y - 13, ww, 7)
         }
     }
 }
@@ -491,12 +501,13 @@ object Toys {
 
     private val cache = HashMap<String, Parts>()
 
-    /** Rust is drawn in quarter steps so the parts are rebuilt only a few times over the weeks. */
-    fun parts(t: Toy, painted: Boolean, rust: Float): Parts = synchronized(cache) {
+    /** Rust is drawn in quarter steps so the parts are rebuilt only a few times over the weeks. A golden toy is gilt all over its main colour. */
+    fun parts(t: Toy, painted: Boolean, rust: Float, gold: Boolean = false): Parts = synchronized(cache) {
         val rq = (rust * 4).roundToInt() / 4f
-        cache.getOrPut("$t$painted$rq") {
+        cache.getOrPut("$t$painted$rq$gold") {
             val a = get(t)
-            val c = if (painted) a.roles + a.paint else a.roles
+            var c = if (painted) a.roles + a.paint else a.roles
+            if (gold) c = c + (a.roles.keys.first() to Pal.gold)
             val raw = a.build(c)
             Parts(raw.mapValues { (k, g) -> g.rusted(rq, t.ordinal * 7 + k.length).outlined() }, c)
         }
@@ -524,16 +535,46 @@ object Toys {
     }
 
     private val frame = Buf(48, 48)
+    private val turned = Buf(48, 48)
     private val SHADOW = rgb(0x0e0804)
+
+    /** Copper and better toys do a somersault every sixth cycle; the spinner and the acrobat have their own. */
+    private fun trick(t: Toy, st: St, alloy: Int): Double? {
+        if (alloy < Rules.COPPER || t == Toy.BALLET || t == Toy.ACRO) return null
+        val n = floor(st.ph).toInt()
+        return if (n % 6 == 5) st.ph - n else null
+    }
 
     /**
      * Draws a toy onto [dst] with its feet at (cx, by), [k] art pixels per toy pixel. [sil] paints it as a flat
-     * silhouette, for a toy not built yet.
+     * silhouette, for a toy not built yet; [alloy] picks its key's metal and its tricks; a [jam]med toy lies
+     * on its side.
      */
-    fun drawAt(dst: Buf, t: Toy, parts: Parts, cx: Int, by: Int, st: St, run: Double, k: Int = 1, sil: Int = 0, shadow: Boolean = true) = synchronized(frame) {
+    fun drawAt(
+        dst: Buf, t: Toy, parts: Parts, cx: Int, by: Int, st: St, run: Double, k: Int = 1, sil: Int = 0, shadow: Boolean = true,
+        alloy: Int = 0, jam: Boolean = false,
+    ) = synchronized(frame) {
         val a = get(t)
         frame.clear()
-        val lift = a.draw(frame, parts, st, run)
+        Key.metal = alloy.coerceIn(0, Pal.metals.size - 1)
+        var lift = a.draw(frame, parts, st, if (jam) 0.0 else run)
+        var src = frame
+        val tr = if (jam || run <= 0) null else trick(t, st, alloy)
+        if (jam) {
+            // Tipped over: a standing toy lies on its side, a walker ends up on its back, legs in the air.
+            turned.clear()
+            turned.drawRot(frame, 24, 24, 24.0, 24.0, if (a.turns) PI else -PI / 2)
+            var low = 0
+            for (y in 0 until 48) for (x in 0 until 48) if (turned.d[y * 48 + x] ushr 24 != 0) low = y
+            frame.clear(); frame.draw(turned, 0, 46 - low)
+        } else if (tr != null) {
+            val hop = rnd(sin(PI * tr) * 9)
+            val e = tr * tr * (3 - 2 * tr)
+            turned.clear()
+            turned.drawRot(frame, 24, 30 - hop, 24.0, 30.0, TAU * e)
+            src = turned
+            lift = max(lift, hop)
+        }
         val x = cx + if (a.step > 0) rnd(st.x * k) else 0
         if (shadow) {
             val w = max(4, rnd(a.shw * (1 - lift / 18.0)))
@@ -544,6 +585,18 @@ object Toys {
         }
         val sx = if (st.turn > 0) max(.14, abs(cos(PI * st.turn))) else 1.0
         val dw = 2 * rnd(24 * sx) * k
-        dst.drawScaled(frame, x - dw / 2, by - 46 * k, dw, 48 * k, flip = a.turns && st.dir < 0, tint = sil)
+        dst.drawScaled(src, x - dw / 2, by - 46 * k, dw, 48 * k, flip = a.turns && st.dir < 0, tint = sil)
+        // Silver and gold toys glint while they run.
+        if (alloy >= Rules.SILVER && run > 0 && !jam && sil == 0) for (i in 0 until 3) {
+            val v = (st.ph * 1.3 + i / 3.0).let { it - floor(it) }
+            if (v > .45) continue
+            val seed = floor(st.ph * 1.3 + i / 3.0).toInt() * 7 + i
+            val gx = x + (rnd((hash(seed, 1) - .5) * 30) * k)
+            val gy = by - (8 + rnd(hash(seed, 2) * 26)) * k
+            val c = if (alloy >= Rules.GOLD) Pal.gold[0] else WHITE
+            val r = if (v < .15 || v > .3) 1 else 2
+            dst.r(gx, gy, k, k, c)
+            for (d in 1..r) { dst.r(gx - d * k, gy, k, k, c, .7f); dst.r(gx + d * k, gy, k, k, c, .7f); dst.r(gx, gy - d * k, k, k, c, .7f); dst.r(gx, gy + d * k, k, k, c, .7f) }
+        }
     }
 }

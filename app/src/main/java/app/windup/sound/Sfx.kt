@@ -41,6 +41,11 @@ class Sfx(private val context: Context) {
         if (on) notes.getOrNull(i)?.takeIf { it != 0 }?.let { pool.play(it, vol, vol, 1, 0, if (detune) 1.012f else 1f) }
     }
 
+    /** A note [semi] semitones from C5, played by speeding or slowing the frog's tooth. */
+    fun tone(semi: Int, vol: Float = .8f) {
+        if (on && notes[0] != 0) pool.play(notes[0], vol, vol, 1, 0, Math.pow(2.0, semi / 12.0).toFloat().coerceIn(.5f, 2f))
+    }
+
     companion object {
         /** C major pentatonic from C5: the frog is the lowest, the acrobat the highest. */
         val NOTES = doubleArrayOf(523.25, 587.33, 659.25, 783.99, 880.0, 1046.5, 1174.66, 1318.51, 1567.98)

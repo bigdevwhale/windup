@@ -44,7 +44,7 @@ fun ExCard(h: Home, e: Ex, note: String? = null, bonus: Boolean = false, onClick
             .padding(horizontal = 10.dp, vertical = 8.dp).alpha(if (lack) .5f else 1f),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(Modifier.width(60.dp), contentAlignment = Alignment.Center) { ToyIcon(e.toy, h.s.painted(e.toy), Engine.rust(h.s, e.toy, now), 1.25f) }
+        Box(Modifier.width(60.dp), contentAlignment = Alignment.Center) { h.Icon(e.toy, 1.25f) }
         Column(Modifier.weight(1f).padding(start = 8.dp)) {
             Text(w.name(e, h.s.step(e)), style = T.Heading)
             Text(
@@ -66,10 +66,17 @@ fun ToySheet(h: Home, t: Toy, onClose: () -> Unit, onEx: (Ex) -> Unit) {
     val w = h.w
     Sheet(w.toy(t), onClose, w.t("Закрыть", "Close")) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            ToyIcon(t, h.s.painted(t), Engine.rust(h.s, t, h.nowMs), 2f, sil = if (h.s.available(t)) 0 else 0x7a5a3e)
+            if (h.s.available(t)) h.Icon(t, 2f) else ToyIcon(t, false, 0f, 2f, sil = 0x7a5a3e)
             Column(Modifier.padding(start = 14.dp)) {
                 Text(w.pattern(t), style = T.Heading)
-                if (h.s.available(t)) Text(w.state(t, Engine.wind(h.s, t, h.nowMs), Engine.rust(h.s, t, h.nowMs), h.s.last(t) != null), style = T.Small)
+                if (h.s.available(t)) {
+                    Text(w.state(t, Engine.wind(h.s, t, h.nowMs), Engine.rust(h.s, t, h.nowMs), h.s.last(t) != null), style = T.Small)
+                    Text(w.alloy(h.s.alloy(t)) + w.t(" · подходов ${h.s.mastery(t)}", " · ${h.s.mastery(t)} sets"), style = T.Small)
+                    if (Engine.jammed(h.s, t, h.nowMs)) Text(
+                        w.t("Заклинило от долгого простоя. Три подхода за день — и ${w.g(t, "она встанет", "он встанет")}.", "Jammed from standing idle. Three sets in a day and it stands up again."),
+                        style = T.Small.copy(color = C.tinDeep),
+                    )
+                }
                 else Text(w.t("Ещё не собран — чертёж в мастерской.", "Not built yet — the blueprint is in the workshop."), style = T.Small)
             }
         }

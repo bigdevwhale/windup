@@ -137,10 +137,10 @@ fun Sheet(title: String, onClose: () -> Unit, closeLabel: String, content: @Comp
 
 /** A still toy, trimmed to its pixels, at [k] dp per art pixel. */
 @Composable
-fun ToyIcon(t: Toy, painted: Boolean, rust: Float, k: Float, modifier: Modifier = Modifier, sil: Int = 0) {
-    val bmp = remember(t, painted, rust, sil) {
+fun ToyIcon(t: Toy, painted: Boolean, rust: Float, k: Float, modifier: Modifier = Modifier, sil: Int = 0, alloy: Int = 0) {
+    val bmp = remember(t, painted, rust, sil, alloy) {
         val b = Buf(48, 48)
-        Toys.drawAt(b, t, Toys.parts(t, painted, rust), 24, 46, St(), 0.0, sil = sil, shadow = false)
+        Toys.drawAt(b, t, Toys.parts(t, painted, rust, alloy >= 4), 24, 46, St(), 0.0, sil = sil, shadow = false, alloy = alloy)
         var x0 = 48; var y0 = 48; var x1 = 0; var y1 = 0
         for (y in 0 until 48) for (x in 0 until 48) if (b.d[y * 48 + x] ushr 24 != 0) { x0 = minOf(x0, x); x1 = maxOf(x1, x); y0 = minOf(y0, y); y1 = maxOf(y1, y) }
         val w = x1 - x0 + 1; val h = y1 - y0 + 1

@@ -35,6 +35,23 @@ class RenderArtScenes {
         Png.write(File(out, "film.png"), b, 3)
     }
 
+    /** Each metal for the frog and the monkey, a trick in mid-air, a jammed bear, and the parade garland. */
+    @Test fun metals() {
+        val b = Buf(48 * 8, 48 * 3)
+        b.r(0, 0, b.w, b.h, rgb(0x1d3532))
+        for ((row, t) in listOf(Toy.FROG, Toy.MONKEY).withIndex()) for (a in 0..4) {
+            val st = St().apply { ph = 2.3 }
+            Toys.drawAt(b, t, Toys.parts(t, false, 0f, a == 4), 24 + a * 48, 46 + row * 48, st, 1.0, alloy = a)
+            app.windup.ui.art.Scenes.plate(b, 24 + a * 48, 46 + row * 48, .7f, a)
+        }
+        for ((i, p) in listOf(5.2, 5.4, 5.6).withIndex()) Toys.drawAt(b, Toy.PENGUIN, Toys.parts(Toy.PENGUIN, false, 0f), 24 + (5 + i) * 48, 46, St().apply { ph = p }, 1.0, alloy = 2)
+        Toys.drawAt(b, Toy.BEAR, Toys.parts(Toy.BEAR, false, 1f), 24 + 5 * 48, 46 + 48, St(), 0.0, jam = true)
+        Toys.drawAt(b, Toy.SOLDIER, Toys.parts(Toy.SOLDIER, false, 1f), 24 + 6 * 48, 46 + 48, St(), 0.0, jam = true)
+        val g = Buf(Scenes.SW, 48); g.r(0, 0, g.w, g.h, rgb(0x1d3532)); Scenes.garland(g, 0)
+        for (y in 0 until 44) for (x in 0 until minOf(b.w, g.w)) b.set(x, 2 * 48 + y, g.get(x, y))
+        Png.write(File(out, "metals.png"), b, 3)
+    }
+
     @Test fun scenes() {
         val shelf = Buf(Scenes.SW, Scenes.SH).also { it.copyFrom(Scenes.shelf) }
         for (t in Toy.entries) {

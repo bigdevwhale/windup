@@ -21,7 +21,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import app.windup.container
 import app.windup.domain.Days
+import app.windup.domain.Rules
 import app.windup.domain.Toy
+import app.windup.domain.Tunes
+import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import app.windup.ui.shelf.ScoreSheet
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import app.windup.domain.date
 import app.windup.domain.minuteOfDay
 import app.windup.ui.Home
@@ -95,7 +104,7 @@ fun BoxScreen(h: Home) {
                 st.x = 0.0; st.dir = 1; st.turn = 0.0
                 val drift = if (p != null) (p.t * 7) % Scenes.BW else 0.0
                 val cx = (((k + .5) * gap + drift) % Scenes.BW).toInt()
-                Toys.drawAt(b, t, Toys.parts(t, h.s.painted(t), 0f), cx, Scenes.TABLE, st, r)
+                Toys.drawAt(b, t, Toys.parts(t, h.s.painted(t), 0f, h.s.alloy(t) >= Rules.GOLD), cx, Scenes.TABLE, st, r, alloy = h.s.alloy(t))
             }
             @Suppress("UNUSED_EXPRESSION") ms
         }
@@ -112,15 +121,52 @@ fun BoxScreen(h: Home) {
             Text(w.verdict(reading), style = T.Body, modifier = Modifier.padding(top = 8.dp))
         }
         Btn(
-            if (play == null) w.t("▶ Сыграть день", "▶ Play the day") else w.t("■ Остановить", "■ Stop"),
+            if (play == null) w.t("Сыграть день", "Play the day") else w.t("Остановить", "Stop"),
             Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), kind = Kind.BRASS, enabled = pins.isNotEmpty(),
         ) {
             play = if (play == null) Play().also { march.values.forEach { s -> s.ph = 0.0 } } else null
         }
+        Album(h)
         Text(
             w.t("Каждая игрушка — своя нота. Штифты, разнесённые по дню, звучат мелодией; собранные в кучу — одним аккордом.",
                 "Each toy is a note of its own. Pins spread across the day sound like a tune; crammed together they're one chord."),
             style = T.Small.copy(color = C.muted), modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp),
         )
+    }
+}
+
+/** The records won by finished scores, newest first, each playable on the box. */
+@Composable
+private fun Album(h: Home) {
+    val w = h.w
+    val c = LocalContext.current.container
+    val scope = rememberCoroutineScope()
+    var playing by remember { mutableIntStateOf(-1) }
+    var job by remember { mutableStateOf<Job?>(null) }
+    ScoreSheet(h)
+    Panel {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(w.t("Пластинки", "Records"), style = T.Title, modifier = Modifier.weight(1f))
+            Text(w.t("${h.s.bag.records} из ${Tunes.all.size}", "${h.s.bag.records} of ${Tunes.all.size}"), style = T.Small)
+        }
+        if (h.s.bag.records == 0) Text(w.t("Сыграй партитуру дня — заведи её четыре игрушки каждую в свою четверть дня — и получишь первую пластинку.",
+            "Play today's score — wind its four toys, each in its own quarter of the day — and the first record is yours."), style = T.Small, modifier = Modifier.padding(top = 4.dp))
+        for (i in h.s.bag.records - 1 downTo 0) {
+            Row(Modifier.fillMaxWidth().padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(w.tune(i), style = T.Body, modifier = Modifier.weight(1f))
+                Box {
+                    Btn(if (playing == i) w.t("стоп", "stop") else w.t("слушать", "listen"), kind = if (playing == i) Kind.TEAL else Kind.GHOST) {
+                        job?.cancel()
+                        if (playing == i) { playing = -1; return@Btn }
+                        playing = i
+                        job = scope.launch {
+                            val tn = Tunes.all[i % Tunes.all.size]
+                            tn.notes.forEachIndexed { k, n -> c.sfx.tone(n); delay(tn.beats[k] * 240L) }
+                            delay(400); playing = -1
+                        }
+                    }
+                }
+            }
+        }
     }
 }

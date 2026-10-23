@@ -47,6 +47,14 @@ import app.windup.ui.theme.T
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import app.windup.ui.components.px
+import app.windup.ui.shelf.Icon
 
 private const val CRANK_MS = 1100L
 
@@ -142,29 +150,9 @@ fun ShopScreen(h: Home, onEx: (Ex, Boolean) -> Unit, onSettings: () -> Unit) {
         }
         Panel {
             Text(w.t("Игрушки", "Toys"), style = T.Title)
-            Text(w.t("Ржавчина — то, чего ты давно не делал. Сходит от одного завода.", "Rust is what you haven't done for a while. One winding takes it off."), style = T.Small)
-            Text(w.t("Раскраску можно найти в капсуле или купить: ${w.gears(Rules.PAINT_GEARS)} (⚙) и ${w.springs(Rules.PAINT_SPRINGS)} (§).",
-                "A paint job comes in a capsule or for ${w.gears(Rules.PAINT_GEARS)} (⚙) and ${w.springs(Rules.PAINT_SPRINGS)} (§)."), style = T.Small, modifier = Modifier.padding(top = 4.dp))
-            for (t in s.toys) {
-                val rust = Engine.rust(s, t, h.nowMs)
-                Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.width(54.dp), contentAlignment = Alignment.Center) { ToyIcon(t, s.painted(t), rust, 1f) }
-                    Column(Modifier.width(100.dp).padding(start = 6.dp)) {
-                        Text(w.toy(t), style = T.Body)
-                        Text(w.pattern(t), style = T.Small)
-                    }
-                    Column(Modifier.weight(1f).padding(horizontal = 6.dp)) {
-                        Text(w.t("ржавчина ${(rust * 100).toInt()}%", "rust ${(rust * 100).toInt()}%"), style = T.Small)
-                        Bar(rust, C.rust, Modifier.fillMaxWidth(), height = 8.dp)
-                    }
-                    if (t in s.bag.paints) Btn(if (s.painted(t)) w.paint(t) else w.tin(t), kind = if (s.painted(t)) Kind.TEAL else Kind.GHOST) {
-                        c.write { repo.paint(t, !s.painted(t)) }
-                    } else Btn("${Rules.PAINT_GEARS}⚙ ${Rules.PAINT_SPRINGS}§", kind = Kind.GHOST, enabled = Engine.canPaint(s, t)) {
-                        c.write { repo.buyPaint(t) }
-                        c.sfx.note(t.note)
-                    }
-                }
-            }
+            Text(w.t("Каждую можно перелить: жесть, латунь, медь, серебро, золото. Нужны детали и подходы именно с этой игрушкой.",
+                "Each can be recast: tin, brass, copper, silver, gold. It takes parts and sets done with that very toy."), style = T.Small)
+            for (t in s.toys) ToyRow(h, t)
         }
         Panel {
             Text(w.t("Что есть дома", "Kit at home"), style = T.Title)
@@ -179,5 +167,77 @@ fun ShopScreen(h: Home, onEx: (Ex, Boolean) -> Unit, onSettings: () -> Unit) {
         Btn(w.t("Настройки", "Settings"), Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp), kind = Kind.GHOST, onClick = onSettings)
         Text(w.t("Без рекламы и без интернета. Всё хранится только на телефоне.", "No ads, no internet. Everything stays on the phone."),
             style = T.Small, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp))
+    }
+}
+
+private val GEAR = listOf("..x.x..", ".xxxxx.", "xxx.xxx", ".x...x.", "xxx.xxx", ".xxxxx.", "..x.x..")
+private val SPRING = listOf(".xxx.", "x...x", ".xxx.", "x...x", ".xxx.", "x...x", ".xxx.")
+
+/** A tiny pixel gear or spring, for prices. */
+@Composable
+fun PartMark(spring: Boolean, color: Color, modifier: Modifier = Modifier) {
+    val rows = if (spring) SPRING else GEAR
+    Canvas(modifier.size(16.dp)) {
+        val p = size.height / 7
+        val x0 = (size.width - rows[0].length * p) / 2
+        rows.forEachIndexed { j, r -> r.forEachIndexed { i, ch -> if (ch == 'x') drawRect(color, Offset(x0 + i * p, j * p), Size(p, p)) } }
+    }
+}
+
+@Composable
+fun Price(gears: Int, springs: Int, color: Color = C.ink) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+        PartMark(false, color); Text("$gears", style = T.Body.copy(color = color))
+        Box(Modifier.width(4.dp))
+        PartMark(true, color); Text("$springs", style = T.Body.copy(color = color))
+    }
+}
+
+/** A button with a label over a price in gears and springs. */
+@Composable
+fun BuyBtn(label: String, gears: Int, springs: Int, enabled: Boolean, onClick: () -> Unit) {
+    val fg = if (enabled) C.ink else C.faint
+    Column(
+        Modifier.px(if (enabled) C.brass else C.paper2, bottom = if (enabled) C.brassDeep else C.paper2, top = if (enabled) C.brassHi else C.paper2)
+            .clickable(enabled = enabled, onClick = onClick).padding(horizontal = 10.dp, vertical = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(label, style = T.Body.copy(color = fg))
+        Price(gears, springs, fg)
+    }
+}
+
+/** One toy in the workshop: its metal, how well its movements are known, its rust, and what it can become. */
+@Composable
+private fun ToyRow(h: Home, t: Toy) {
+    val c = LocalContext.current.container
+    val w = h.w
+    val s = h.s
+    val a = s.alloy(t)
+    val rust = Engine.rust(s, t, h.nowMs)
+    Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.width(56.dp), contentAlignment = Alignment.Center) { h.Icon(t, 1f) }
+        Column(Modifier.weight(1f).padding(horizontal = 8.dp)) {
+            Text("${w.toy(t)} · ${w.alloy(a).lowercase()}", style = T.Body)
+            if (a < Rules.GOLD) {
+                val need = Rules.ALLOY_MASTERY[a]
+                Text(w.t("подходов ${s.mastery(t).coerceAtMost(need)} из $need", "sets ${s.mastery(t).coerceAtMost(need)} of $need"), style = T.Small)
+                Bar(s.mastery(t) / need.toFloat(), C.teal, Modifier.fillMaxWidth(), height = 6.dp)
+                Text(w.alloy(a + 1) + ": " + w.alloyGift(a + 1), style = T.Small, modifier = Modifier.padding(top = 2.dp))
+            } else Text(w.t("золото — вершина", "gold — the top"), style = T.Small)
+            if (rust > .05f) Text(w.t("ржавчина ${(rust * 100).toInt()}%", "rust ${(rust * 100).toInt()}%"), style = T.Small.copy(color = C.rust))
+        }
+        Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            if (a < Rules.GOLD) BuyBtn(w.alloy(a + 1), Rules.ALLOY_GEARS[a], Rules.ALLOY_SPRINGS[a], Engine.canAlloy(s, t)) {
+                c.write { repo.alloy(t) }
+                c.sfx.note(t.note); c.sfx.tone(12)
+            }
+            if (t in s.bag.paints) Btn(if (s.painted(t)) w.paint(t) else w.tin(t), kind = if (s.painted(t)) Kind.TEAL else Kind.GHOST) {
+                c.write { repo.paint(t, !s.painted(t)) }
+            } else BuyBtn(w.t("раскраска", "paint"), Rules.PAINT_GEARS, Rules.PAINT_SPRINGS, Engine.canPaint(s, t)) {
+                c.write { repo.buyPaint(t) }
+                c.sfx.note(t.note)
+            }
+        }
     }
 }

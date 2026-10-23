@@ -1,6 +1,7 @@
 package app.windup.ui.art
 
 import app.windup.domain.Toy
+import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.hypot
@@ -102,12 +103,30 @@ object Scenes {
         b
     }
 
-    /** The brass plate under a toy, its bar showing the winding left. */
-    fun plate(b: Buf, cx: Int, by: Int, wind: Float) {
-        b.r(cx - 11, by + 2, 22, 4, INK); b.r(cx - 10, by + 3, 20, 2, Pal.gold[2])
+    /** The plate under a toy, in its metal, its bar showing the winding left and a dot per alloy step. */
+    fun plate(b: Buf, cx: Int, by: Int, wind: Float, alloy: Int = 0) {
+        val m = Pal.metals[alloy.coerceIn(0, Pal.metals.size - 1)]
+        b.r(cx - 12, by + 1, 24, 6, INK); b.r(cx - 11, by + 2, 22, 4, m[2]); b.r(cx - 11, by + 2, 22, 1, m[0])
         b.r(cx - 9, by + 3, 18, 2, DARK)
         val n = (18 * wind).roundToInt()
         b.r(cx - 9, by + 3, n, 1, Pal.gold[1]); b.r(cx - 9, by + 4, n, 1, Pal.gold[2])
+        for (i in 0 until alloy) b.set(cx - 2 * alloy + 1 + i * 4, by + 6, m[0])
+    }
+
+    private val FLAGS = listOf(Pal.red, Pal.brass, Pal.teal, Pal.pink, Pal.blue)
+
+    /** Bunting across the top shelf: every toy was wound today. */
+    fun garland(b: Buf, ms: Long) {
+        val y0 = 10
+        for (x in 2 until SW - 2) {
+            val y = y0 + (sin(PI * x / (SW - 4)) * 14).roundToInt()
+            b.set(x, y, INK)
+            if (x % 12 == 6) {
+                val f = FLAGS[(x / 12) % FLAGS.size]
+                val sway = if (((ms / 400) + x / 12) % 2 == 0L) 0 else 1
+                for (j in 0 until 6) for (i in -3 + j / 2..3 - j / 2) b.set(x + i + if (j > 2) sway else 0, y + 1 + j, if (j == 5 || i == -3 + j / 2 || i == 3 - j / 2) INK else f[if (i < 0) 0 else 1])
+            }
+        }
     }
 
     /** The question mark over the empty place a blueprint toy will take. */

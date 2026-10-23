@@ -45,6 +45,22 @@ class Words(val ru: Boolean) {
 
     fun tin(t: Toy) = g(t, t("Жестяная", "Tin"), t("Жестяной", "Tin"))
 
+    fun alloy(a: Int) = listOf(t("Жесть", "Tin"), t("Латунь", "Brass"), t("Медь", "Copper"), t("Серебро", "Silver"), t("Золото", "Gold"))[a.coerceIn(0, 4)]
+
+    /** What the next metal brings. */
+    fun alloyGift(a: Int) = when (a) {
+        1 -> t("латунные ключ и табличка", "a brass key and plate")
+        2 -> t("трюк: сальто каждый шестой круг", "a trick: a somersault every sixth round")
+        3 -> t("серебряные искры на ходу", "silver glints as it runs")
+        else -> t("позолота с головы до ног", "gilt from head to toe")
+    }
+
+    fun tune(i: Int): String {
+        val tn = app.windup.domain.Tunes.all[i % app.windup.domain.Tunes.all.size]
+        val round = i / app.windup.domain.Tunes.all.size
+        return t(tn.ru, tn.en) + if (round > 0) t(" · запись ${round + 1}", " · take ${round + 1}") else ""
+    }
+
     fun place(p: Place) = when (p) {
         Place.DESK -> t("За столом", "At the desk"); Place.KETTLE -> t("Пока закипает чайник", "While the kettle boils")
         Place.QUEUE -> t("Очередь, лифт", "Queue, lift"); Place.TEETH -> t("Чищу зубы", "Brushing teeth")

@@ -21,6 +21,7 @@ import app.windup.ui.components.Btn
 import app.windup.ui.components.Panel
 import app.windup.ui.components.Sheet
 import app.windup.ui.components.ToyIcon
+import app.windup.ui.shelf.Icon
 import app.windup.ui.shelf.elapsed
 import app.windup.ui.shelf.todayPins
 import app.windup.ui.theme.C
@@ -34,7 +35,7 @@ fun ResultSheet(h: Home, out: Outcome, onClose: () -> Unit) {
     val t = p.toy
     Sheet(w.t("Штифт в ${w.clock(p.at.minuteOfDay(h.zone))}", "A pin at ${w.clock(p.at.minuteOfDay(h.zone))}"), onClose, w.t("На полку", "To the shelf")) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            ToyIcon(t, h.s.painted(t), Engine.rust(h.s, t, h.nowMs), 2f)
+            h.Icon(t, 2f)
             Column(Modifier.padding(start = 14.dp)) {
                 Text("${w.toy(t)} ${w.g(t, w.t("заведена", "is wound"), w.t("заведён", "is wound"))}", style = T.Title)
                 Text(w.t("на два часа хода", "for two hours of running"), style = T.Small)
@@ -59,6 +60,15 @@ fun ResultSheet(h: Home, out: Outcome, onClose: () -> Unit) {
                 style = T.Title.copy(color = C.tinDeep), modifier = Modifier.padding(top = 10.dp),
             )
             out.stepUp?.let { s -> Catalog.ex(p.ex)?.let { e -> Text(w.t("Новая ступень: ", "Next step: ") + w.name(e, s), style = T.Heading, modifier = Modifier.padding(top = 8.dp)) } }
+            if (out.repair > 0) Text(
+                if (out.freed) w.t("${w.toy(t)} снова на ногах — механизм расклинило, +${Rules.REPAIR_GEARS} шестерёнок.", "${w.toy(t)} is back on its feet — the works are free, +${Rules.REPAIR_GEARS} gears.")
+                else w.t("Ремонт: ${out.repair} из ${Rules.REPAIR_SETS} подходов сегодня — и ${w.g(t, "она встанет", "он встанет")}.", "Repair: ${out.repair} of ${Rules.REPAIR_SETS} sets today and it stands up again."),
+                style = T.Heading, modifier = Modifier.padding(top = 8.dp),
+            )
+            out.record?.let { r -> Text(w.t("Партитура сыграна! Новая пластинка: «${w.tune(r)}» · +${Rules.SCORE_GEARS} шестерёнок и ${Rules.SCORE_SPRINGS} пружины",
+                "The score is played! A new record: «${w.tune(r)}» · +${Rules.SCORE_GEARS} gears and ${Rules.SCORE_SPRINGS} springs"), style = T.Heading.copy(color = C.tinDeep), modifier = Modifier.padding(top = 8.dp)) }
+            if (out.parade) Text(w.t("Парад полки! Сегодня заведены все игрушки · капсула и +${Rules.PARADE_GEARS} шестерёнок", "Shelf parade! Every toy wound today · a capsule and +${Rules.PARADE_GEARS} gears"),
+                style = T.Heading.copy(color = C.tinDeep), modifier = Modifier.padding(top = 8.dp))
             if (out.capsule) Text(w.t("Каждый третий штифт дня — капсула в мастерской.", "Every third pin of the day drops a capsule in the workshop."), style = T.Sub, modifier = Modifier.padding(top = 8.dp))
         }
         Btn(w.t("На полку", "To the shelf"), Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp), onClick = onClose)

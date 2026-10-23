@@ -54,6 +54,7 @@ import app.windup.ui.components.Dots
 import app.windup.ui.components.Kind
 import app.windup.ui.components.Panel
 import app.windup.ui.components.TopBar
+import app.windup.ui.shelf.parts
 import app.windup.ui.shelf.run
 import app.windup.ui.theme.C
 import app.windup.ui.theme.T
@@ -130,7 +131,7 @@ fun ExerciseScreen(h: Home, e: Ex, bonus: Boolean, onClose: () -> Unit, onDone: 
                 val k = key[0]
                 Toys.step(Toys[e.toy], st, dt, r)
                 st.kph = k
-                Toys.drawAt(b, e.toy, Toys.parts(e.toy, h.s.painted(e.toy), Engine.rust(h.s, e.toy, h.nowMs)), Scenes.EW / 2, Scenes.ETOP, st, r)
+                Toys.drawAt(b, e.toy, h.parts(e.toy), Scenes.EW / 2, Scenes.ETOP, st, r, alloy = h.s.alloy(e.toy))
                 Scenes.gauge(b, count / target.toFloat())
             }
             Panel {
@@ -172,7 +173,7 @@ fun ExerciseScreen(h: Home, e: Ex, bonus: Boolean, onClose: () -> Unit, onDone: 
                 ) {
                     saving = true; holding = false; pocket = false
                     scope.launch {
-                        val out = c.repo.pin(e, count, bonus)
+                        val out = c.repo.pin(e, count, bonus, h.settings.wake)
                         if (out.pin.over) c.sfx.ping() else c.sfx.note(e.toy.note)
                         Nudge.plan(ctx)
                         onDone(out)
