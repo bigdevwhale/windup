@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A wind-up key, for the reminder in the status bar. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="12"
+    android:viewportHeight="12">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M1,1h4v4h-4z M7,1h4v4h-4z M5,2h2v2h-2z M5,4h2v7h-2z M2,7h3v2h-3z M7,7h3v2h-3z" />
+    <path android:fillColor="#00000000" android:pathData="M2,2h2v2h-2z" />
+</vector>

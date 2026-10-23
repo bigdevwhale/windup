@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Windup</string>
+    <string name="tab_shelf">Shelf</string>
+    <string name="tab_box">Music box</string>
+    <string name="tab_shop">Workshop</string>
+</resources>
