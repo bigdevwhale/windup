@@ -78,8 +78,10 @@ fun Onboarding(w: Words, settings: Settings) {
                             "A 1–3 minute set winds a toy for two hours. Every rep is a click of the key."),
                         w.t("Каждый завод — штифт в барабане шкатулки. Вечером день играет мелодию: разнесённые по дню штифты звучат красиво, сделанные разом — кашей.",
                             "Each winding is a pin in the music box drum. In the evening the day plays: pins spread over the day sound like a tune, crammed together — a mush."),
-                        w.t("Шестерёнки и пружины идут на чертежи, капсулы дарят раскраски, а заброшенные игрушки ржавеют.",
-                            "Gears and springs go to blueprints, capsules bring paint jobs, and neglected toys rust."),
+                        w.t("Каждое утро — партитура: четыре игрушки, по одной на четверть дня. Сыграешь — получишь пластинку в альбом.",
+                            "Each morning brings a score: four toys, one for each quarter of the day. Play it and a record goes into the album."),
+                        w.t("Шестерёнки и пружины переливают игрушки из жести в латунь, медь, серебро и золото. Все за день — парад; заброшенные ржавеют.",
+                            "Gears and springs recast the toys from tin to brass, copper, silver and gold. All in a day is a parade; neglected toys rust."),
                     )) Text("· $l", style = T.Body, modifier = Modifier.padding(top = 8.dp))
                 }
                 else -> {

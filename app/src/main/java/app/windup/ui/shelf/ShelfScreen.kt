@@ -2,6 +2,8 @@ package app.windup.ui.shelf
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.ui.layout.layout
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -93,11 +95,7 @@ fun ShelfScreen(h: Home, onToy: (Toy) -> Unit, onWind: () -> Unit) {
         PixelView(Scenes.STRIP_W, Scenes.STRIP_H, Modifier.padding(horizontal = 6.dp)) { b, _, _ ->
             Scenes.strip(b, today, h.settings.wake.len, h.elapsed())
         }
-        Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-            val from = h.settings.wake.from / 60
-            val to = h.settings.wake.to / 60
-            for (hr in from..to step 2) Text("$hr", style = T.Small)
-        }
+        HourLabels(h.settings.wake.from, h.settings.wake.len)
         ScoreSheet(h)
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(w.pins(today.size), style = T.Sub)
@@ -152,4 +150,20 @@ fun run(wind: Float): Double = when {
     wind <= 0f -> 0.0
     wind > .18f -> 1.0
     else -> .25 + .75 * wind / .18
+}
+
+/** The hours under the drum, each centred on its long tick. */
+@Composable
+fun HourLabels(from: Int, len: Int) {
+    val step = Scenes.hourStep(len)
+    BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = 6.dp).height(18.dp)) {
+        val w = constraints.maxWidth
+        for (k in 0..len / 60 step step) {
+            val x = (Scenes.stripX(k * 60, len) * w).toInt()
+            Text("${(from / 60 + k) % 24}", style = T.Small, modifier = Modifier.layout { m, c ->
+                val p = m.measure(c.copy(minWidth = 0))
+                layout(p.width, p.height) { p.place((x - p.width / 2).coerceIn(0, w - p.width), 0) }
+            })
+        }
+    }
 }

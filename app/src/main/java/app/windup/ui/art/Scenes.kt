@@ -177,6 +177,15 @@ object Scenes {
     }
 
     /** The day as a flat strip of drum: time across, the toy's note down, and a red line at now. */
+    /** Hours between the long ticks and the labels under the drum: whatever divides the day evenly. */
+    fun hourStep(len: Int): Int {
+        val hours = (len / 60).coerceAtLeast(1)
+        return listOf(2, 3, 4).firstOrNull { hours % it == 0 } ?: 2
+    }
+
+    /** Where an hour of the day falls across the strip, 0..1 of its width. */
+    fun stripX(min: Int, len: Int) = (6 + min.coerceIn(0, len) * (STRIP_W - 12) / len) / STRIP_W.toFloat()
+
     fun strip(b: Buf, pins: List<DrumPin>, len: Int, now: Int?) {
         val w = STRIP_W
         val h = STRIP_H
@@ -185,7 +194,7 @@ object Scenes {
         val hours = len / 60
         for (k in 0..hours) {
             val x = 6 + k * (w - 12) / hours.coerceAtLeast(1)
-            val tall = if (k % 2 == 0) 4 else 2
+            val tall = if (k % hourStep(len) == 0) 4 else 2
             b.r(x, 1, 1, tall, Pal.brass[3]); b.r(x, h - 1 - tall, 1, tall, Pal.brass[3])
         }
         if (now != null) {
