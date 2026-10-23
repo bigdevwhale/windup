@@ -15,6 +15,12 @@ import app.windup.domain.Toy.FROG
 import app.windup.domain.Toy.MONKEY
 import app.windup.domain.Toy.PENGUIN
 import app.windup.domain.Toy.ROBOT
+import app.windup.domain.Toy.CLOWN
+import app.windup.domain.Toy.DIVER
+import app.windup.domain.Toy.HARE
+import app.windup.domain.Toy.MINER
+import app.windup.domain.Toy.SAILOR
+import app.windup.domain.Toy.SKIER
 import app.windup.domain.Toy.SOLDIER
 
 /** Every movement, by toy. Short enough for a kettle, a queue or a phone call. */
@@ -111,6 +117,45 @@ object Catalog {
         e("acro.pullup", ACRO, "Подтягивания", "Pull-ups", "Подбородок над перекладиной, без рывков.", "Chin over the bar, no swinging.", 5, setOf(KIT, OUTSIDE), kit = Kit.BAR,
             ladder = "Негативные|Negatives;С резинкой|Band-assisted;Полные|Full;С паузой|With a pause;Лучник|Archer", step = 1),
         e("acro.band", ACRO, "Тяга резинки", "Band row", "Резинка в двери, локти назад, лопатки вместе.", "Band in the door, elbows back, blades together.", 12, setOf(KIT), kit = Kit.BAND),
+
+        // The fair toys. The skier: legs, side to side.
+        e("skier.skater", SKIER, "Конькобежец", "Skater hops", "Прыжок вбок на одну ногу, вторая заходит за спину. Туда-обратно.", "Hop sideways onto one leg, the other sweeps behind. Back and forth.", 12, setOf(KETTLE, OUTSIDE), pocket = true),
+        e("skier.side", SKIER, "Выпады в сторону", "Side lunges", "Широкий шаг вбок, таз назад, вторая нога прямая.", "A wide step to the side, hips back, the other leg straight.", 10, setOf(KETTLE, CALL)),
+        e("skier.tuck", SKIER, "Стойка лыжника", "Skier's tuck", "Полуприсед, корпус вперёд, руки как с палками. Держи.", "Half squat, chest forward, arms as if holding poles. Hold.", 30, setOf(KETTLE, TEETH), S),
+        e("skier.walk", SKIER, "Шаги в полуприседе", "Crab walk", "В полуприседе приставными шагами вбок и обратно.", "In a half squat, side-step one way and back.", 20, setOf(KETTLE, OUTSIDE)),
+        e("skier.band", SKIER, "Шаги с резинкой", "Band side steps", "Резинка над коленями, шаги вбок, колени не сводить.", "Band above the knees, step sideways, knees apart.", 20, setOf(KIT), kit = Kit.BAND),
+
+        // The hare: jumps and the heart.
+        e("hare.jacks", HARE, "Прыжки звёздочкой", "Jumping jacks", "Руки и ноги врозь — и вместе. Мягко на носках.", "Arms and legs apart and together. Light on the toes.", 30, setOf(KETTLE, OUTSIDE), pocket = true),
+        e("hare.run", HARE, "Бег на месте", "Run in place", "Колени повыше, руки работают.", "Knees up, arms pumping.", 60, setOf(KETTLE, OUTSIDE), S),
+        e("hare.bounds", HARE, "Прыжки с ноги на ногу", "Bounds", "Длинные пружинистые скачки, как через лужи.", "Long springy leaps, as if over puddles.", 16, setOf(OUTSIDE), pocket = true),
+        e("hare.burpee", HARE, "Бёрпи", "Burpees", "Присед, упор лёжа, обратно — и вверх.", "Squat, plank, back in — and up.", 6, setOf(KETTLE),
+            ladder = "Без прыжка|Step-back;С прыжком|Classic;С отжиманием|With a push-up", step = 0),
+
+        // The diver: breathing.
+        e("diver.box", DIVER, "Дыхание квадратом", "Box breathing", "Вдох на 4, пауза на 4, выдох на 4, пауза на 4.", "In for 4, hold for 4, out for 4, hold for 4.", 60, setOf(DESK, QUEUE, KETTLE), S),
+        e("diver.exhale", DIVER, "Длинный выдох", "Long exhale", "Вдох на 4, выдох на 8 — медленно, через губы.", "In for 4, out for 8 — slowly, through pursed lips.", 60, setOf(DESK, QUEUE, CALL), S),
+        e("diver.belly", DIVER, "Дыхание животом", "Belly breathing", "Ладонь на животе: на вдохе он поднимается, грудь неподвижна.", "A hand on the belly: it rises as you breathe in, the chest stays still.", 60, setOf(DESK, KETTLE), S),
+        e("diver.shrug", DIVER, "Плечи к ушам — и сброс", "Shrug and drop", "Подними плечи к ушам, задержи — и уронив, выдохни.", "Lift the shoulders to the ears, hold — drop them and breathe out.", 8, setOf(DESK, QUEUE, CALL)),
+
+        // The miner: pushing and carrying.
+        e("miner.wall", MINER, "Толкай стену", "Wall push", "Упрись руками в стену и толкай, будто сдвигаешь её.", "Hands on the wall and push as if to move it.", 20, setOf(DESK, KETTLE), S),
+        e("miner.sled", MINER, "Санки", "Towel sled", "Ладони на полотенце, толкай его по полу вперёд на полусогнутых.", "Hands on a towel, push it across the floor, legs bent.", 20, setOf(KETTLE), S),
+        e("miner.bags", MINER, "Пакеты из магазина", "Shopping carry", "Неси покупки ровно, плечи вниз, не сутулься.", "Carry the shopping tall, shoulders down, no slouch.", 60, setOf(OUTSIDE), S),
+        e("miner.row", MINER, "Тяга рюкзака в наклоне", "Backpack row", "Наклон, спина прямая, тяни рюкзак к поясу.", "Hinge forward, straight back, pull the bag to the waist.", 12, setOf(KIT), kit = Kit.BACKPACK),
+
+        // The clown: coordination.
+        e("clown.cross", CLOWN, "Перекрёстные касания", "Cross crawl", "Локоть к противоположному колену, по очереди.", "Elbow to the opposite knee, side to side.", 20, setOf(CALL, KETTLE)),
+        e("clown.line", CLOWN, "Ходьба по линии", "Heel-to-toe walk", "Пятка к носку, как по канату. Взгляд вперёд.", "Heel to toe, as on a tightrope. Eyes ahead.", 20, setOf(KETTLE, OUTSIDE)),
+        e("clown.toss", CLOWN, "Подбросить и поймать", "Toss and catch", "Подбрось что-нибудь мягкое и поймай другой рукой.", "Toss something soft and catch it with the other hand.", 20, setOf(DESK, CALL)),
+        e("clown.stork", CLOWN, "Цапля с поворотом", "Turning stork", "На одной ноге медленно поворачивай голову влево-вправо.", "On one leg, slowly turn your head left and right.", 20, setOf(TEETH, QUEUE), S),
+
+        // The sailor: shoulders.
+        e("sailor.circles", SAILOR, "Круги руками", "Arm circles", "Прямые руки в стороны, круги вперёд, потом назад.", "Straight arms out, circles forward, then back.", 20, setOf(KETTLE, OUTSIDE)),
+        e("sailor.rolls", SAILOR, "Вращение плечами", "Shoulder rolls", "Плечи вверх, назад и вниз — большими кругами.", "Shoulders up, back and down — big circles.", 12, setOf(DESK, QUEUE, CALL)),
+        e("sailor.row", SAILOR, "Гребля полотенцем", "Towel row", "Полотенце в руках, тяни на себя, как весло, сводя лопатки.", "A towel in both hands, pull like an oar, squeezing the blades.", 12, setOf(DESK, KETTLE)),
+        e("sailor.ytw", SAILOR, "Буквы Y и T", "Y and T raises", "Наклонись, руки буквой Y, потом T — поднимай без рывков.", "Lean forward, arms in a Y, then a T — lift slowly.", 10, setOf(KETTLE)),
+        e("sailor.raise", SAILOR, "Махи гантелями", "Lateral raises", "Гантели в стороны до плеч, медленно вниз.", "Dumbbells out to shoulder height, slowly down.", 12, setOf(KIT), kit = Kit.DUMBBELLS),
     )
 
     private val byKey = all.associateBy { it.key }

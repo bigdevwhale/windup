@@ -103,6 +103,7 @@ fun ShopScreen(h: Home, onEx: (Ex, Boolean) -> Unit, onSettings: () -> Unit) {
                 }
             }
         }
+        FairPanel(h)
         when (val g = got) {
             is Capsule.Challenge -> Panel {
                 Text(w.t("Вызов из капсулы", "A challenge from the capsule"), style = T.Title)

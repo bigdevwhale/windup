@@ -63,6 +63,12 @@ class Repo(db: ShelfDb, private val clock: () -> Long = System::currentTimeMilli
         if (Engine.canAlloy(s, t)) { save(Engine.alloy(s, t)); _state.value = load() }
     }
 
+    suspend fun buyFair(t: Toy, at: Long = clock()) = lock.withLock {
+        val s = current()
+        val d = at.date(zone())
+        if (Engine.canBuyFair(s, t, d)) { save(Engine.buyFair(s, t, d)); _state.value = load() }
+    }
+
     suspend fun build() = lock.withLock { save(Engine.build(current())); _state.value = load() }
 
     suspend fun buyPaint(t: Toy) = lock.withLock {
@@ -125,6 +131,7 @@ object Bags {
                 val t = toy(k)
                 if (t == null || parts.size != 2) null else t to ((parts[0].toLongOrNull() ?: 0L) to (parts[1].toIntOrNull() ?: 0))
             }.toMap(),
+            bought = m["bought"].orEmpty().split(',').mapNotNull { toy(it) },
         )
     }
 
@@ -140,5 +147,6 @@ object Bags {
         "alloys" to b.alloys.entries.joinToString(",") { "${it.key.name}=${it.value}" }, "records" to b.records.toString(),
         "scoreDay" to b.scoreDay.toString(), "paradeDay" to b.paradeDay.toString(),
         "jam" to b.jam.entries.joinToString(",") { "${it.key.name}=${it.value.first}:${it.value.second}" },
+        "bought" to b.bought.joinToString(",") { it.name },
     ).map { MetaRow(it.first, it.second) }
 }

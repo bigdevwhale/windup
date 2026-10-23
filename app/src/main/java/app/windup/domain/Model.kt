@@ -4,13 +4,22 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
-/** The tin toys on the shelf. Each one keeps a family of movements and plays one note of the music box. */
-enum class Toy(val fem: Boolean) {
-    FROG(true), MONKEY(true), BEAR(false), BALLET(true), SOLDIER(false), BIRD(true), ROBOT(false), PENGUIN(false), ACRO(false);
+/**
+ * The tin toys. Each one keeps a family of movements and plays one note of the music box. The first nine
+ * live on the shelf from the start (the acrobat once built); the rest come from the weekend fair.
+ */
+enum class Toy(val fem: Boolean, val fair: Boolean = false) {
+    FROG(true), MONKEY(true), BEAR(false), BALLET(true), SOLDIER(false), BIRD(true), ROBOT(false), PENGUIN(false), ACRO(false),
+    SKIER(false, true), HARE(false, true), DIVER(false, true), MINER(false, true), CLOWN(false, true), SAILOR(false, true);
 
     /** The acrobat is built from a blueprint in the workshop. */
     val blueprint get() = this == ACRO
     val note get() = ordinal
+
+    companion object {
+        val CORE = entries.filter { !it.fair }
+        val FAIR = entries.filter { it.fair }
+    }
 }
 
 /** Where you are right now: the shelf suggests what fits there. */
@@ -81,6 +90,8 @@ data class Bag(
     val paradeDay: Long = -1,
     /** Toys jammed by long neglect, with the day and count of repair sets done towards freeing them. */
     val jam: Map<Toy, Pair<Long, Int>> = emptyMap(),
+    /** Fair toys bought, in the order they came home: that's their order on the new shelves. */
+    val bought: List<Toy> = emptyList(),
 )
 
 data class State(val pins: List<Pin>, val bag: Bag) {
@@ -88,8 +99,15 @@ data class State(val pins: List<Pin>, val bag: Bag) {
     val springs get() = pins.sumOf { it.springs } + bag.bonusSprings - bag.spentSprings
 
     fun last(toy: Toy? = null): Pin? = pins.lastOrNull { toy == null || it.toy == toy }
-    fun available(t: Toy) = !t.blueprint || bag.built
+    fun available(t: Toy) = when {
+        t.blueprint -> bag.built
+        t.fair -> t in bag.bought
+        else -> true
+    }
     val toys get() = Toy.entries.filter { available(it) }
+
+    /** The shelf from left to right, top to bottom: the nine first, then the fair toys as they came. */
+    val shelf get() = Toy.CORE + bag.bought
     fun step(e: Ex) = (bag.steps[e.key] ?: e.step0).coerceIn(0, (e.ladder.size - 1).coerceAtLeast(0))
     fun painted(t: Toy) = t in bag.painted
     fun alloy(t: Toy) = bag.alloys[t] ?: 0

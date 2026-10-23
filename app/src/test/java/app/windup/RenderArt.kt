@@ -52,6 +52,29 @@ class RenderArtScenes {
         Png.write(File(out, "metals.png"), b, 3)
     }
 
+    /** The stall open and shut, and a shelf grown to five boards with every fair toy on it. */
+    @Test fun fair() {
+        for (open in listOf(true, false)) {
+            val b = Buf(Scenes.FW, Scenes.FH).also { it.copyFrom(Scenes.stall(open)) }
+            for ((i, t) in listOf(Toy.DIVER, Toy.MINER).withIndex()) {
+                if (open) Toys.drawAt(b, t, Toys.parts(t, false, 0f), Scenes.FAIR_SLOT[i], Scenes.COUNTER, St().apply { ph = .3 }, 1.0)
+                else Toys.drawAt(b, t, Toys.parts(t, false, 0f), Scenes.FAIR_SLOT[i], Scenes.COUNTER, St(), 0.0, sil = rgb(0x2a4744), shadow = false)
+                Scenes.tag(b, Scenes.FAIR_SLOT[i], i == 1 && open)
+            }
+            Png.write(File(out, "stall-${if (open) "open" else "shut"}.png"), b, 3)
+        }
+        val slots = Toy.CORE + Toy.FAIR
+        val rows = (slots.size + 2) / 3
+        val b = Buf(Scenes.SW, Scenes.shelfH(rows)).also { it.copyFrom(Scenes.shelf(rows)) }
+        Scenes.garland(b, 0)
+        slots.forEachIndexed { i, t ->
+            val cx = Scenes.SLOT[i % 3]; val by = Scenes.plank(i / 3)
+            Toys.drawAt(b, t, Toys.parts(t, false, 0f), cx, by, St(), 0.0)
+            Scenes.plate(b, cx, by, .5f, i % 5)
+        }
+        Png.write(File(out, "shelf-full.png"), b, 2)
+    }
+
     @Test fun scenes() {
         val shelf = Buf(Scenes.SW, Scenes.SH).also { it.copyFrom(Scenes.shelf) }
         for (t in Toy.entries) {

@@ -39,14 +39,14 @@ class EngineTest {
     @Test fun catalogue_is_sound() {
         val keys = Catalog.all.map { it.key }
         assertEquals(keys.size, keys.toSet().size)
-        for (t in Toy.entries) assertTrue("$t has movements", Catalog.of(t).size >= 5)
+        for (t in Toy.entries) assertTrue("$t has movements", Catalog.of(t).size >= if (t.fair) 4 else 5)
         for (e in Catalog.all) {
             assertTrue(e.key, e.target > 0 && e.places.isNotEmpty())
             if (e.ladder.isNotEmpty()) assertTrue(e.key, e.step0 in e.ladder.indices)
             if (e.kit != null) assertTrue(e.key, Place.KIT in e.places || Place.OUTSIDE in e.places)
         }
         // Every place has something for a shelf without kit.
-        val s = State(emptyList(), Bag(kit = emptySet(), built = true))
+        val s = State(emptyList(), Bag(kit = emptySet(), built = true, bought = Toy.FAIR))
         for (p in Place.entries - Place.KIT) assertTrue("$p", Catalog.all.any { Engine.fits(s, it, p) })
     }
 
@@ -230,5 +230,33 @@ class EngineTest {
         assertEquals(1, s.alloy(Toy.FROG))
         assertEquals(g - Rules.ALLOY_GEARS[0], s.gears)
         assertFalse(Engine.canAlloy(s, Toy.FROG)) // copper needs 30 sets
+    }
+
+    @Test fun the_fair_opens_on_weekends_with_two_toys_in_turn() {
+        val sat = LocalDate.of(2026, 10, 24)
+        assertTrue(Engine.fairOpen(sat) && Engine.fairOpen(sat.plusDays(1)))
+        assertFalse(Engine.fairOpen(day))
+        assertEquals(Engine.fairToys(sat), Engine.fairToys(sat.plusDays(1)))
+        assertEquals(Engine.fairToys(sat), Engine.fairToys(day)) // a weekday shows the coming pair
+        val seen = (0 until 3).map { Engine.fairToys(sat.plusWeeks(it.toLong())) }
+        assertEquals(6, seen.flatMap { listOf(it.first, it.second) }.toSet().size)
+        assertEquals(Engine.fairToys(sat), Engine.fairToys(sat.plusWeeks(3)))
+    }
+
+    @Test fun fair_toys_are_bought_and_join_the_shelf() {
+        val sat = LocalDate.of(2026, 10, 24)
+        val (a, b) = Engine.fairToys(sat)
+        var s = State(emptyList(), Bag(bonusGears = 1000, bonusSprings = 50))
+        assertFalse(s.available(a))
+        assertFalse(Engine.canBuyFair(s, a, day)) // closed on a weekday
+        val other = Toy.FAIR.first { it != a && it != b }
+        assertFalse(Engine.canBuyFair(s, other, sat)) // not on the stall
+        s = s.copy(bag = Engine.buyFair(s, b, sat))
+        s = s.copy(bag = Engine.buyFair(s, a, sat))
+        assertTrue(s.available(a) && s.available(b))
+        assertEquals(Toy.CORE + listOf(b, a), s.shelf)
+        assertFalse(Engine.canBuyFair(s, a, sat)) // once only
+        assertEquals(1000 - Rules.FAIR_PRICE.getValue(a).first - Rules.FAIR_PRICE.getValue(b).first, s.gears)
+        assertEquals(s.bag, Bags.read(Bags.write(s.bag).associate { it.k to it.v }))
     }
 }

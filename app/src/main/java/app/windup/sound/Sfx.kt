@@ -47,8 +47,8 @@ class Sfx(private val context: Context) {
     }
 
     companion object {
-        /** C major pentatonic from C5: the frog is the lowest, the acrobat the highest. */
-        val NOTES = doubleArrayOf(523.25, 587.33, 659.25, 783.99, 880.0, 1046.5, 1174.66, 1318.51, 1567.98)
+        /** C major pentatonic from C5, one note per toy: the frog lowest, the fair toys highest. */
+        val NOTES = doubleArrayOf(523.25, 587.33, 659.25, 783.99, 880.0, 1046.5, 1174.66, 1318.51, 1567.98, 1760.0, 2093.0, 2349.32, 2637.02, 3135.96, 3520.0)
     }
 }
 

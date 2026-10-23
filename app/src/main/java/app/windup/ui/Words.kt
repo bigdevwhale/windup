@@ -27,6 +27,8 @@ class Words(val ru: Boolean) {
         Toy.FROG -> t("Лягушка", "Frog"); Toy.MONKEY -> t("Обезьянка", "Monkey"); Toy.BEAR -> t("Медведь", "Bear")
         Toy.BALLET -> t("Балерина", "Ballerina"); Toy.SOLDIER -> t("Барабанщик", "Drummer"); Toy.BIRD -> t("Птичка", "Bird")
         Toy.ROBOT -> t("Робот", "Robot"); Toy.PENGUIN -> t("Пингвин", "Penguin"); Toy.ACRO -> t("Акробат", "Acrobat")
+        Toy.SKIER -> t("Лыжник", "Skier"); Toy.HARE -> t("Заяц", "Hare"); Toy.DIVER -> t("Водолаз", "Diver")
+        Toy.MINER -> t("Шахтёр", "Miner"); Toy.CLOWN -> t("Клоун", "Clown"); Toy.SAILOR -> t("Морячок", "Sailor")
     }
 
     fun pattern(t: Toy) = when (t) {
@@ -35,12 +37,17 @@ class Words(val ru: Boolean) {
         Toy.SOLDIER -> t("осанка и шаг", "posture and walking"); Toy.BIRD -> t("наклоны и ягодицы", "hinges and glutes")
         Toy.ROBOT -> t("повороты и бока", "turning and the sides"); Toy.PENGUIN -> t("стопы и икры", "feet and calves")
         Toy.ACRO -> t("тяга", "pulling")
+        Toy.SKIER -> t("ноги вбок", "legs, side to side"); Toy.HARE -> t("прыжки и сердце", "jumps and the heart")
+        Toy.DIVER -> t("дыхание", "breathing"); Toy.MINER -> t("толкать и нести", "pushing and carrying")
+        Toy.CLOWN -> t("координация", "coordination"); Toy.SAILOR -> t("плечи", "shoulders")
     }
 
     fun paint(t: Toy) = when (t) {
         Toy.FROG -> t("Ёлочная", "Christmas"); Toy.MONKEY -> t("Цирковая", "Circus"); Toy.BEAR -> t("Белый", "Polar")
         Toy.BALLET -> t("Лебедь", "Swan"); Toy.SOLDIER -> t("Гвардеец", "Guardsman"); Toy.BIRD -> t("Снегирь", "Bullfinch")
         Toy.ROBOT -> t("Лунный", "Lunar"); Toy.PENGUIN -> t("Императорский", "Emperor"); Toy.ACRO -> t("Цирковой", "Big top")
+        Toy.SKIER -> t("Олимпийский", "Olympic"); Toy.HARE -> t("Русак", "Brown hare"); Toy.DIVER -> t("Серебряный шлем", "Silver helmet")
+        Toy.MINER -> t("Красная вагонетка", "Red cart"); Toy.CLOWN -> t("Рыжий", "Auguste"); Toy.SAILOR -> t("Капитан", "Captain")
     }
 
     fun tin(t: Toy) = g(t, t("Жестяная", "Tin"), t("Жестяной", "Tin"))

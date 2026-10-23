@@ -19,6 +19,14 @@ object Scenes {
     const val SH = 216
     val PLANK = intArrayOf(66, 138, 210)
     val SLOT = intArrayOf(36, 108, 180)
+    const val ROW = 72
+
+    /** The shelf grows a board for every three fair toys. */
+    fun shelfH(rows: Int) = SH + ROW * (rows - 3).coerceAtLeast(0)
+    fun plank(row: Int) = 66 + ROW * row
+
+    /** The rows a drum needs for every toy's note, top to bottom. */
+    private fun noteRow(t: Toy, top: Int, span: Int) = top + (t.ordinal * span / (Toy.entries.size - 1.0)).roundToInt()
 
     const val EW = 108
     const val EH = 72
@@ -32,7 +40,7 @@ object Scenes {
     private const val CY1 = 56
 
     const val STRIP_W = 216
-    const val STRIP_H = 40
+    const val STRIP_H = 48
 
     private val WARM = intArrayOf(rgb(0x33463a), rgb(0x4a5238), rgb(0x665c3a), rgb(0x857040))
     private val PAPER_A = rgb(0x21403c)
@@ -84,12 +92,18 @@ object Scenes {
         b.r(x, y, 2, 8, BRACKET[0]); b.r(x + 2, y + 1, 3, 2, BRACKET[1]); b.r(x + 4, y + 2, 2, 2, BRACKET[0]); b.r(x, y + 8, 2, 1, INK)
     }
 
-    val shelf: Buf by lazy {
-        val b = Buf(SW, SH)
-        wall(b, SW, SH, 108.0, 12.0, 190.0)
-        for (y in PLANK) {
+    val shelf: Buf get() = shelf(3)
+    private val shelves = HashMap<Int, Buf>()
+
+    fun shelf(rows: Int): Buf = synchronized(shelves) { shelves.getOrPut(rows) { paintShelf(rows) } }
+
+    private fun paintShelf(rows: Int): Buf {
+        val h = shelfH(rows)
+        val b = Buf(SW, h)
+        wall(b, SW, h, 108.0, 12.0, 190.0)
+        for (y in (0 until rows.coerceAtLeast(3)).map { plank(it) }) {
             plank(b, y, SW)
-            if (y + 7 < SH) { bracket(b, 8, y + 7); bracket(b, SW - 14, y + 7) }
+            if (y + 7 < h) { bracket(b, 8, y + 7); bracket(b, SW - 14, y + 7) }
         }
         b.r(107, 0, 1, 5, rgb(0x0c0806))
         val shade = Buf(26, 10)
@@ -100,7 +114,7 @@ object Scenes {
         shade.r(1, 8, 24, 1, Pal.gold[2]); shade.r(2, 8, 22, 1, Pal.gold[1])
         b.draw(shade.outlined(), 94, 3)
         b.r(103, 13, 10, 2, rgb(0xfff6c8)); b.r(105, 13, 6, 1, WHITE)
-        b
+        return b
     }
 
     /** The plate under a toy, in its metal, its bar showing the winding left and a dot per alloy step. */
@@ -202,7 +216,7 @@ object Scenes {
             b.r(nx + 1, 1, w - nx - 1, h - 2, rgb(0x1e130c), .35f)
             b.r(nx, 0, 1, h, Pal.red[1]); b.r(nx - 1, 0, 3, 2, Pal.red[2])
         }
-        for (p in pins) pin(b, 6 + p.min.coerceIn(0, len) * (w - 12) / len, 5 + (p.toy.ordinal * 3.5).roundToInt(), p.toy, p.over)
+        for (p in pins) pin(b, 6 + p.min.coerceIn(0, len) * (w - 12) / len, noteRow(p.toy, 5, h - 12), p.toy, p.over)
     }
 
     /**
@@ -220,20 +234,71 @@ object Scenes {
         for (p in pins) {
             val x = (COMB + (p.min - play) * pxm).roundToInt()
             if (x < COMB - 6 || x > BW - 7) continue
-            pin(b, x, CY0 + 4 + (p.toy.ordinal * 4.7).roundToInt(), p.toy, p.over)
+            pin(b, x, noteRow(p.toy, CY0 + 3, CY1 - CY0 - 8), p.toy, p.over)
         }
         b.r(COMB - 7, CY0, 1, CY1 - CY0, INK); b.r(BW - 5, CY0, 1, CY1 - CY0, INK)
         for (j in CY0 until CY1) for (i in 6 until 16) b.set(i, j, tone(-.5 * ((i - 6) / 10.0 * 2 - 1) + .4 + bay(i, j) * .2, Pal.silver, false))
         for (t in Toy.entries) {
-            val y = CY0 + 4 + (t.ordinal * 4.7).roundToInt()
+            val y = noteRow(t, CY0 + 3, CY1 - CY0 - 8)
             val pl = nowMs - plucked[t.ordinal] < 260
             val v = if (pl) (if ((nowMs / 45) % 2 == 0L) 1 else -1) else 0
-            b.r(16, y - 1, COMB - 16 + v, 4, INK)
-            b.r(16, y, COMB - 17 + v, 1, if (pl) WHITE else Pal.silver[1])
-            b.r(16, y + 1, COMB - 17 + v, 1, Pal.silver[2])
+            b.r(16, y - 1, COMB - 16 + v, 3, INK)
+            b.r(16, y, COMB - 17 + v, 1, if (pl) WHITE else if (t.ordinal % 2 == 0) Pal.silver[1] else Pal.silver[2])
         }
         b.r(COMB, 2, 1, CY1 - 2, Pal.red[1])
         if (playing && play > 0) b.r(4, CY1 + 1, ((BW - 8) * (play / len).coerceIn(0.0, 1.0)).roundToInt(), 1, Pal.gold[1])
+    }
+
+    // The weekend fair's stall.
+    const val FW = 216
+    const val FH = 88
+    const val COUNTER = 70
+    val FAIR_SLOT = intArrayOf(62, 154)
+
+    /** The stall: a striped awning over a wooden counter; on weekdays the awning is rolled up. */
+    fun stall(open: Boolean): Buf = synchronized(stalls) { stalls.getOrPut(open) { paintStall(open) } }
+    private val stalls = HashMap<Boolean, Buf>()
+
+    private fun paintStall(open: Boolean): Buf {
+        val b = Buf(FW, FH)
+        wall(b, FW, FH, 108.0, 20.0, if (open) 160.0 else 70.0)
+        // Posts.
+        for (x in listOf(10, FW - 14)) { val post = Buf(4, FH - 6); post.box(0, 0, 4, FH - 6, Pal.brown); b.draw(post.outlined(), x - 1, 4) }
+        // The awning: red and cream stripes with a scalloped edge.
+        val depth = if (open) 16 else 6
+        for (y in 4 until 4 + depth) for (x in 6 until FW - 6) {
+            val stripe = ((x - 6) / 12) % 2 == 0
+            val r = if (stripe) Pal.red else Pal.white
+            val l = .55 - (y - 4) / depth.toDouble() * .5 + bay(x, y) * .2
+            b.set(x, y, tone(l, r, false))
+        }
+        for (x in 6 until FW - 6) {
+            val k = (x - 6) % 12
+            val drop = if (open) (if (k in 3..8) 3 else if (k in 1..10) 2 else 1) else 0
+            val stripe = ((x - 6) / 12) % 2 == 0
+            for (j in 0 until drop) b.set(x, 4 + depth + j, if (stripe) Pal.red[2] else Pal.white[2])
+            b.set(x, 4 + depth + drop, INK)
+        }
+        b.r(6, 3, FW - 12, 1, INK)
+        // Bunting of light bulbs under the awning when open.
+        if (open) for (x in 16 until FW - 16 step 14) { b.r(x, 26, 2, 2, Pal.gold[0]); b.r(x, 28, 2, 1, Pal.gold[2]) }
+        // The counter.
+        for (i in 6 until FW - 6) {
+            b.set(i, COUNTER, WOOD[0]); b.set(i, COUNTER + 1, WOOD[1])
+            for (j in 2 until FH - COUNTER) {
+                val g = sin(i * .11 + j * 1.9 + sin(i * .03) * 2) > .8
+                b.set(i, COUNTER + j, if (j == 2) WOOD[2] else if (g) WOOD[4] else WOOD[3])
+            }
+        }
+        b.r(6, COUNTER - 1, FW - 12, 1, INK)
+        return b
+    }
+
+    /** A paper price tag hanging off the counter. */
+    fun tag(b: Buf, cx: Int, sold: Boolean) {
+        b.line(cx, COUNTER + 2, cx, COUNTER + 5, INK)
+        b.r(cx - 6, COUNTER + 5, 13, 8, INK); b.r(cx - 5, COUNTER + 6, 11, 6, if (sold) Pal.teal[1] else Pal.white[1])
+        b.r(cx - 3, COUNTER + 8, 7, 1, if (sold) Pal.teal[3] else Pal.white[3]); b.r(cx - 3, COUNTER + 10, 5, 1, if (sold) Pal.teal[3] else Pal.white[3])
     }
 
     // The capsule machine.

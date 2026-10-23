@@ -496,7 +496,7 @@ object Acro : ToyArt(Toy.ACRO, speed = .6, shw = 16) {
 
 /** All the toys' art, and the frames they're drawn through. */
 object Toys {
-    val art: Map<Toy, ToyArt> = listOf(Frog, Monkey, Bear, Ballet, Soldier, Bird, Robot, Penguin, Acro).associateBy { it.toy }
+    val art: Map<Toy, ToyArt> = listOf(Frog, Monkey, Bear, Ballet, Soldier, Bird, Robot, Penguin, Acro, Skier, Hare, Diver, Miner, Clown, Sailor).associateBy { it.toy }
     operator fun get(t: Toy) = art.getValue(t)
 
     private val cache = HashMap<String, Parts>()
@@ -536,11 +536,14 @@ object Toys {
 
     private val frame = Buf(48, 48)
     private val turned = Buf(48, 48)
+
+    /** Toys whose own motion is the trick, or who'd drop what they carry. */
+    private val NO_TRICK = setOf(Toy.BALLET, Toy.ACRO, Toy.MINER, Toy.CLOWN)
     private val SHADOW = rgb(0x0e0804)
 
     /** Copper and better toys do a somersault every sixth cycle; the spinner and the acrobat have their own. */
     private fun trick(t: Toy, st: St, alloy: Int): Double? {
-        if (alloy < Rules.COPPER || t == Toy.BALLET || t == Toy.ACRO) return null
+        if (alloy < Rules.COPPER || t in NO_TRICK) return null
         val n = floor(st.ph).toInt()
         return if (n % 6 == 5) st.ph - n else null
     }

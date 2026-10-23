@@ -60,25 +60,28 @@ fun ShelfScreen(h: Home, onToy: (Toy) -> Unit, onWind: () -> Unit) {
     val reading = Days.read(today.map { it.min }, h.elapsed())
     val paraded = h.s.bag.paradeDay == h.nowMs.date(h.zone).toEpochDay()
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-        TopBar(w.t("Завод", "Windup"), w.t("полка у лампы", "the shelf by the lamp")) {
+        val fair = Engine.fairOpen(h.nowMs.date(h.zone))
+        TopBar(w.t("Завод", "Windup"), if (fair) w.t("ярмарка открыта — загляни в мастерскую", "the fair is open — see the workshop") else w.t("полка у лампы", "the shelf by the lamp")) {
             Text(w.clock(h.nowMs.minuteOfDay(h.zone)), style = T.Clock)
         }
-        PixelView(Scenes.SW, Scenes.SH, onTap = { x, y ->
+        val slots = h.s.shelf
+        val rows = (slots.size + 2) / 3
+        PixelView(Scenes.SW, Scenes.shelfH(rows), onTap = { x, y ->
             val col = (x / (Scenes.SW / 3f)).toInt().coerceIn(0, 2)
-            val row = when { y < Scenes.PLANK[0] + 4 -> 0; y < Scenes.PLANK[1] + 4 -> 1; else -> 2 }
-            onToy(Toy.entries[row * 3 + col])
+            val row = (0 until rows).firstOrNull { y < Scenes.plank(it) + 4 } ?: (rows - 1)
+            slots.getOrNull(row * 3 + col)?.let(onToy)
         }) { b, dt, ms ->
-            b.copyFrom(Scenes.shelf)
+            b.copyFrom(Scenes.shelf(rows))
             if (paraded) Scenes.garland(b, ms)
             val now = System.currentTimeMillis()
-            for (t in Toy.entries) {
-                val cx = Scenes.SLOT[t.ordinal % 3]
-                val by = Scenes.PLANK[t.ordinal / 3]
+            slots.forEachIndexed { i, t ->
+                val cx = Scenes.SLOT[i % 3]
+                val by = Scenes.plank(i / 3)
                 val st = h.toys.getValue(t)
                 if (!h.s.available(t)) {
                     Toys.drawAt(b, t, Toys.parts(t, false, 0f), cx, by, st, 0.0, sil = rgb(SIL), shadow = false)
                     Scenes.query(b, cx, by)
-                    continue
+                    return@forEachIndexed
                 }
                 val jam = Engine.jammed(h.s, t, now)
                 val wind = if (jam) 0f else Engine.wind(h.s, t, now)

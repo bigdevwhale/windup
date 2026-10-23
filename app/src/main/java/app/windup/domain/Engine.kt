@@ -1,6 +1,8 @@
 package app.windup.domain
 
+import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
 import java.time.ZoneId
 import kotlin.math.ceil
 import kotlin.random.Random
@@ -59,6 +61,13 @@ object Rules {
     /** Three sets in a day free a jammed toy. */
     const val REPAIR_SETS = 3
     const val REPAIR_GEARS = 6
+
+    /** The fair's stock and prices; two toys stand on the stall each weekend, in turn. */
+    val FAIR_PRICE = mapOf(
+        Toy.SKIER to (150 to 6), Toy.HARE to (150 to 6), Toy.DIVER to (200 to 8),
+        Toy.MINER to (200 to 8), Toy.SAILOR to (250 to 10), Toy.CLOWN to (300 to 12),
+    )
+    val FAIR_PAIRS = listOf(Toy.SKIER to Toy.HARE, Toy.DIVER to Toy.MINER, Toy.SAILOR to Toy.CLOWN)
 
     const val MIN_MS = 60_000L
     const val DAY_MS = 24 * 3600_000L
@@ -222,6 +231,28 @@ object Engine {
             }
             else -> Capsule.Parts to b.copy(bonusGears = b.bonusGears + 3, bonusSprings = b.bonusSprings + 1)
         }
+    }
+
+    /** Saturday and Sunday the fair is open. */
+    fun fairOpen(date: LocalDate) = date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY
+
+    /** The two toys on the stall this weekend (or the coming one, on a weekday). */
+    fun fairToys(date: LocalDate): Pair<Toy, Toy> {
+        val sat = date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY)).let { if (date.dayOfWeek == DayOfWeek.SUNDAY) date.minusDays(1) else it }
+        val week = Math.floorDiv(sat.toEpochDay(), 7L)
+        return Rules.FAIR_PAIRS[Math.floorMod(week, Rules.FAIR_PAIRS.size.toLong()).toInt()]
+    }
+
+    fun canBuyFair(s: State, t: Toy, date: LocalDate): Boolean {
+        val (g, sp) = Rules.FAIR_PRICE[t] ?: return false
+        val (a, b) = fairToys(date)
+        return fairOpen(date) && (t == a || t == b) && t !in s.bag.bought && s.gears >= g && s.springs >= sp
+    }
+
+    fun buyFair(s: State, t: Toy, date: LocalDate): Bag {
+        require(canBuyFair(s, t, date))
+        val (g, sp) = Rules.FAIR_PRICE.getValue(t)
+        return s.bag.copy(bought = s.bag.bought + t, spentGears = s.bag.spentGears + g, spentSprings = s.bag.spentSprings + sp)
     }
 
     fun canBuild(s: State) = !s.bag.built && s.gears >= Rules.ACRO_GEARS && s.springs >= Rules.ACRO_SPRINGS

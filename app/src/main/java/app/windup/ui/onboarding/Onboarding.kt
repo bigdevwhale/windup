@@ -50,7 +50,7 @@ fun Onboarding(w: Words, settings: Settings) {
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             if (page < 2) PixelView(Scenes.SW, Scenes.SH) { b, dt, _ ->
                 b.copyFrom(Scenes.shelf)
-                for (t in Toy.entries) {
+                for (t in Toy.CORE) {
                     val st = toys.getValue(t)
                     val run = if (page == 0 && t.ordinal % 2 == 1) 0.0 else 1.0
                     if (t.blueprint) { Toys.drawAt(b, t, Toys.parts(t, false, 0f), Scenes.SLOT[2], Scenes.PLANK[2], st, 0.0, sil = 0x2a4744, shadow = false); continue }
