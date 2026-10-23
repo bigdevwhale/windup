@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [1.0.0] - 2026-10-23
 
 ### Added
 - The shelf: nine pixel-art tin toys with their own wind-up motions, wound for two hours by a short set.

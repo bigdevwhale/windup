@@ -8,9 +8,11 @@
 
 *Нас приучили, что спорт — это час пару раз в неделю. Телу естественнее иначе: присесть, пока закипает чайник, постоять на одной ноге, пока чистишь зубы, подняться по лестнице. «Завод» — полка из девяти пиксельных жестяных игрушек; завода хватает на два часа, и крутить ключ нужно часто — по минуте-три. Бесплатно, без рекламы, без аккаунта и без интернета.*
 
+[![Скачать](https://img.shields.io/github/v/release/bigdevwhale/windup?color=D24A32&label=скачать&logo=android)](https://github.com/bigdevwhale/windup/releases/latest)
+
 [English](README.md) · **Русский** · [Изменения](CHANGELOG.md)
 
-<img src="docs/shelf.png" width="420" />
+<img src="docs/screenshots/ru/1-shelf.jpg" width="200" /> <img src="docs/screenshots/ru/3-where.jpg" width="200" /> <img src="docs/screenshots/ru/4-exercise.jpg" width="200" /> <img src="docs/screenshots/ru/5-box.jpg" width="200" /> <img src="docs/screenshots/ru/7-workshop.jpg" width="200" /> <img src="docs/screenshots/ru/8-metals.jpg" width="200" />
 
 </div>
 
