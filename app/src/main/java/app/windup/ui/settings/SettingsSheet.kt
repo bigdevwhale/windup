@@ -17,6 +17,7 @@ import app.windup.container
 import app.windup.notify.Nudge
 import app.windup.ui.Home
 import app.windup.ui.components.Btn
+import app.windup.ui.components.CommunityLinks
 import app.windup.ui.components.Flow
 import app.windup.ui.components.Kind
 import app.windup.ui.components.Panel
@@ -55,6 +56,7 @@ fun SettingsSheet(h: Home, onClose: () -> Unit) {
                 Btn(w.t("тихо", "silent"), kind = if (!st.sound) Kind.TEAL else Kind.GHOST) { save { it.copy(sound = false) } }
             }
         }
+        CommunityLinks(w)
         Panel {
             Text(w.t("О «Заводе»", "About Windup"), style = T.Title)
             Text(w.t("Нас приучили, что спорт — это час пару раз в неделю. Тело любит иначе: понемногу, весь день. Игрушки на полке — напоминание об этом.",
