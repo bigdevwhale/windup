@@ -72,7 +72,7 @@ fun ShelfScreen(h: Home, onToy: (Toy) -> Unit, onWind: () -> Unit) {
     val gs = rememberGuide(h, guide.key)
     Column(Modifier.fillMaxSize()) {
         val fair = Engine.fairOpen(h.nowMs.date(h.zone))
-        TopBar(w.t("Завод", "Windup"), if (fair) w.t("ярмарка открыта — загляни в мастерскую", "the fair is open — see the workshop") else w.t("полка у лампы", "the shelf by the lamp")) {
+        TopBar(w.t("Заводилка", "Windup"), if (fair) w.t("ярмарка открыта — загляни в мастерскую", "the fair is open — see the workshop") else w.t("полка у лампы", "the shelf by the lamp")) {
             HelpButton(gs, w.t("Подсказка", "Help"))
             Text(w.clock(h.nowMs.minuteOfDay(h.zone)), style = T.Clock)
         }

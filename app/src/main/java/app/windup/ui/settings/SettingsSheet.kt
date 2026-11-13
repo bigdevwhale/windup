@@ -72,7 +72,7 @@ fun SettingsSheet(h: Home, onClose: () -> Unit) {
         }
         CommunityLinks(w)
         Panel {
-            Text(w.t("О «Заводе»", "About Windup"), style = T.Title)
+            Text(w.t("О «Заводилке»", "About Windup"), style = T.Title)
             Text(w.t("Нас приучили, что спорт — это час пару раз в неделю. Тело любит иначе: понемногу, весь день. Игрушки на полке — напоминание об этом.",
                 "We were taught that exercise is an hour a couple of times a week. The body prefers a little, all day long. The toys on the shelf are a reminder of that."), style = T.Small)
             Text(w.t("Версия ${BuildConfig.VERSION_NAME} · шрифт Nunito (OFL) · исходники на GitHub", "Version ${BuildConfig.VERSION_NAME} · Nunito font (OFL) · source on GitHub"),

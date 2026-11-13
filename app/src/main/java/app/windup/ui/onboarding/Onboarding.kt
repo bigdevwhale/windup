@@ -47,7 +47,7 @@ fun Onboarding(w: Words, settings: Settings) {
     val ask = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
     Column(Modifier.fillMaxSize().screen()) {
-        TopBar(w.t("Завод", "Windup"), w.t("${page + 1} из 3", "${page + 1} of 3"))
+        TopBar(w.t("Заводилка", "Windup"), w.t("${page + 1} из 3", "${page + 1} of 3"))
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             if (page < 2) Stage(Scenes.SW, Scenes.SH) { b, dt, _ ->
                 Scenes.shelf(b, 3)
