@@ -6,6 +6,16 @@ line "<!-- tg", then 2-4 short lines in Russian for users (what is new, what is 
 then close it like any HTML comment. The release notes carry it, and the chat bot posts those lines.
 -->
 
+## [1.1.1] - 2026-11-13
+
+### Changed
+- The Russian name is now «Заводилка» instead of «Завод», which read as a factory rather than a wound-up spring. The English name stays Windup.
+
+<!-- tg
+Новое название: «Завод» теперь «Заводилка» — так зовут заводные игрушки, а не фабрику.
+Больше ничего не поменялось, все игрушки и записи на месте.
+-->
+
 ## [1.1.0] - 2026-11-13
 
 ### Changed
