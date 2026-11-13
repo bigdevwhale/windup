@@ -22,7 +22,8 @@ import kotlin.random.Random
 object DemoSeed {
     suspend fun seedIfEmpty(app: WindupApp, c: AppContainer) {
         if (c.repo.refresh().pins.isNotEmpty()) return
-        c.settings.update { it.copy(onboarded = true) }
+        // The demo is for screenshots: the screens' guides count as read.
+        c.settings.update { it.copy(onboarded = true, seen = setOf("shelf", "box", "stats", "shop", "toy", "where", "exercise")) }
         val (pins, bag) = build(System.currentTimeMillis(), ZoneId.systemDefault())
         c.repo.seed(pins, bag)
     }

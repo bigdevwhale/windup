@@ -16,8 +16,7 @@
 
 **English** · [Русский](README.ru.md) · [Changelog](CHANGELOG.md)
 
-<img src="docs/screenshots/en/1-shelf.jpg" width="200" /> <img src="docs/screenshots/en/3-where.jpg" width="200" /> <img src="docs/screenshots/en/4-exercise.jpg" width="200" /> <img src="docs/screenshots/en/5-box.jpg" width="200" /> <img src="docs/screenshots/en/7-workshop.jpg" width="200" /> <img src="docs/screenshots/en/8-metals.jpg" width="200" />
-
+<img src="docs/screenshots/en/1-shelf.jpg" width="200" /> <img src="docs/screenshots/en/3-where.jpg" width="200" /> <img src="docs/screenshots/en/4-exercise.jpg" width="200" /> <img src="docs/screenshots/en/5-box.jpg" width="200" /> <img src="docs/screenshots/en/9-stats.jpg" width="200" /> <img src="docs/screenshots/en/10-evening.jpg" width="200" />
 </div>
 
 ---

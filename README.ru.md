@@ -12,8 +12,7 @@
 
 [English](README.md) · **Русский** · [Изменения](CHANGELOG.md)
 
-<img src="docs/screenshots/ru/1-shelf.jpg" width="200" /> <img src="docs/screenshots/ru/3-where.jpg" width="200" /> <img src="docs/screenshots/ru/4-exercise.jpg" width="200" /> <img src="docs/screenshots/ru/5-box.jpg" width="200" /> <img src="docs/screenshots/ru/7-workshop.jpg" width="200" /> <img src="docs/screenshots/ru/8-metals.jpg" width="200" />
-
+<img src="docs/screenshots/ru/1-shelf.jpg" width="200" /> <img src="docs/screenshots/ru/3-where.jpg" width="200" /> <img src="docs/screenshots/ru/4-exercise.jpg" width="200" /> <img src="docs/screenshots/ru/5-box.jpg" width="200" /> <img src="docs/screenshots/ru/9-stats.jpg" width="200" /> <img src="docs/screenshots/ru/10-evening.jpg" width="200" />
 </div>
 
 ---
