@@ -6,6 +6,32 @@ line "<!-- tg", then 2-4 short lines in Russian for users (what is new, what is 
 then close it like any HTML comment. The release notes carry it, and the chat bot posts those lines.
 -->
 
+## [1.1.0] - 2026-11-13
+
+### Changed
+- New art: every toy (with its paint job), the shelf, the workbench, the music box, the fair stall and the capsule machine are painted illustrations instead of pixel art, animated smoothly at 60 fps.
+- A new app icon: the tin frog with its brass key.
+- The interface is no longer pixel: the Nunito font, paper-and-brass cards with rivets, metal buttons, a new bottom bar with icons and a capsule badge.
+- The music box: an inlaid wooden case, notes rising from the toys as they play, a round play button, a 14-day calendar strip and equal tiles with icons, records as spinning discs.
+- The workshop is split into Capsules · Fair · Toys · Kit; the purse and the settings live in its top bar.
+- The toy's card: the toy alive on the bench, its state in large colour, and the last winding, metal, sets and rust in clear rows.
+
+### Added
+- An evening theme (dark walnut and felt), following the phone or set in settings.
+- Statistics: streak and record, this week against the last, evenness, totals, the last two weeks by day, the hours you move in, reps, holds and floors, each toy's windings, parts earned.
+- A ✓ on the plate of every toy wound today, and "wound today at 14:20" on its card.
+- A guide on every screen at first visit, brought back by "?" in the top bar or from settings.
+
+### Fixed
+- Back from a movement opened from a toy's list (or from "Where are you?") returns to that list instead of the shelf.
+
+<!-- tg
+Завод 1.1: новые нарисованные игрушки и сцены вместо пикселей, тёмная тема и новая иконка.
+Новая вкладка «Статистика»: серия дней, недели, часы, игрушки.
+На полке ✓ у игрушек, заведённых сегодня; в карточке — когда заводили в последний раз.
+Исправлено: «Назад» из упражнения возвращает к списку упражнений.
+-->
+
 ## [1.0.1] - 2026-10-25
 
 ### Added

@@ -1,19 +1,15 @@
 package app.windup.ui.art
 
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import app.windup.domain.Toy
 import kotlin.math.PI
-import kotlin.math.abs
-import kotlin.math.floor
-import kotlin.math.hypot
-import kotlin.math.pow
-import kotlin.math.roundToInt
 import kotlin.math.sin
-import kotlin.math.sqrt
 
 /** A pin as the drum draws it: minutes into the waking day, which toy's note, whether it was overwound. */
 data class DrumPin(val min: Int, val toy: Toy, val over: Boolean)
 
-/** The fixed backdrops: the shelf by the lamp, the workbench, the music box, the capsule machine. */
+/** The backdrops: the shelf by the lamp, the workbench, the music box, the fair stall, the capsule machine. */
 object Scenes {
     const val SW = 216
     const val SH = 216
@@ -26,171 +22,167 @@ object Scenes {
     fun plank(row: Int) = 66 + ROW * row
 
     /** The rows a drum needs for every toy's note, top to bottom. */
-    private fun noteRow(t: Toy, top: Int, span: Int) = top + (t.ordinal * span / (Toy.entries.size - 1.0)).roundToInt()
+    private fun noteRow(t: Toy, top: Float, span: Float) = top + t.ordinal * span / (Toy.entries.size - 1f)
 
     const val EW = 108
     const val EH = 72
     const val ETOP = 60
 
     const val BW = 216
-    const val BH = 136
-    const val TABLE = 120
-    const val COMB = 58
-    private const val CY0 = 6
-    private const val CY1 = 56
+    const val BH = 152
+    const val TABLE = 134
+    const val COMB = 62
+    private const val CY0 = 13f
+    private const val CY1 = 63f
+    private const val DRUM_END = BW - 16f
 
     const val STRIP_W = 216
     const val STRIP_H = 48
 
-    private val WARM = intArrayOf(rgb(0x33463a), rgb(0x4a5238), rgb(0x665c3a), rgb(0x857040))
-    private val PAPER_A = rgb(0x21403c)
-    private val PAPER_B = rgb(0x1b322f)
-    private val PAPER_C = rgb(0x2f5a54)
-    private val PAPER_D = rgb(0x3d6b5e)
-    private val WOOD = intArrayOf(rgb(0xd29a5c), rgb(0xb07a46), rgb(0x8a5a32), rgb(0x7a4c2a), rgb(0x6e4426), rgb(0x4a2c16))
-    private val DARK = rgb(0x2a170c)
-    private val BRACKET = intArrayOf(rgb(0x3a2414), rgb(0x5a3820))
+    private val WARM = Color(0xFFFFD58A)
+    private val DUSK = Color(0xFF0B1A18)
+    private val TEAL = Color(0xFF16302C)
+    private val INKC = Color(0xFF1E130C)
 
-    /** Old wallpaper: stripes with a small printed diamond. */
-    private fun paper(x: Int, y: Int): Int {
-        val stripe = (x + 3) % 16 < 8
-        val mx = (x + 3) % 16 - 3.5
-        val my = (y % 14) - 6.5
-        val d = abs(mx) + abs(my)
-        return when {
-            stripe && d == 0.0 -> PAPER_D
-            stripe && d <= 1.5 -> PAPER_C
-            stripe -> PAPER_A
-            else -> PAPER_B
-        }
+    /** Wallpaper under a lamp at (lx, ly): the paper, dimmed, with a warm pool of light that fades out at [reach]. */
+    fun wall(g: G, x: Float, y: Float, w: Float, h: Float, lx: Float, ly: Float, reach: Float, glow: Float = 1f) {
+        g.tiled(Img["scene_wall"], x, y, w, h, 64)
+        // The paper is old and the room is dim: a deep teal wash over it, the lamp's pool warming it back up.
+        g.rect(x, y, w, h, TEAL.copy(alpha = .72f))
+        g.rect(x, y, w, h, DUSK.copy(alpha = .28f))
+        g.rect(x, y, w, h, Brush.radialGradient(
+            0f to WARM.copy(alpha = .55f * glow), .35f to WARM.copy(alpha = .22f * glow), 1f to WARM.copy(alpha = 0f),
+            center = g.o(lx, ly), radius = g.u(reach),
+        ))
+        g.rect(x, y, w, h, Brush.radialGradient(
+            0f to Color.Transparent, .7f to Color.Transparent, 1f to DUSK.copy(alpha = .45f),
+            center = g.o(lx, ly), radius = g.u(reach * 1.25f),
+        ))
     }
 
-    /** Wallpaper under a lamp at (lx, ly): warm light in stepped, dithered rings. */
-    fun wall(b: Buf, w: Int, h: Int, lx: Double, ly: Double, reach: Double, y0: Int = 0) {
-        for (j in y0 until y0 + h) for (i in 0 until w) {
-            val d = hypot((i - lx) / 1.25, j - ly)
-            val l = (1 - d / reach).coerceIn(0.0, 1.0).pow(1.7)
-            val lv = floor((l * 4.2 + bay(i, j) * .9).coerceIn(0.0, 4.4)).toInt()
-            b.set(i, j, if (lv <= 0) paper(i, j) else WARM[(lv - 1).coerceAtMost(3)])
-        }
+    /** A wooden shelf board, the toys' feet on its top at y, and its shadow on the wall below. */
+    fun plank(g: G, y: Number, w: Number) {
+        val yy = y.toFloat()
+        val img = Img["scene_plank"]
+        val ww = w.toFloat() + 6
+        val h = ww * img.height / img.width
+        // The board is the top two fifths of the picture; the brackets hang below it.
+        g.rect(0, yy + h * .3f, w, 8, Brush.verticalGradient(listOf(Color.Black.copy(alpha = .4f), Color.Transparent), g.u(yy + h * .3f), g.u(yy + h * .3f + 8)))
+        g.image(img, -3, yy - h * .07f, ww, h)
     }
 
-    /** A wooden shelf board seen a little from above, with grain and a shadow on the wall below. */
-    fun plank(b: Buf, y: Int, w: Int) {
-        for (i in 0 until w) {
-            b.set(i, y, WOOD[0]); b.set(i, y + 1, WOOD[1])
-            for (j in 2 until 6) {
-                val g = sin(i * .09 + j * 1.7 + sin(i * .023) * 3) > .82
-                b.set(i, y + j, if (g) WOOD[4] else if (j == 2) WOOD[2] else WOOD[3])
-            }
-            b.set(i, y + 6, WOOD[5])
-            for (j in 7 until 10) if ((i + j) % 2 == 0 || j == 7) b.p(i, y + j, rgb(0x080402), .35f)
-        }
-    }
-
-    private fun bracket(b: Buf, x: Int, y: Int) {
-        b.r(x, y, 2, 8, BRACKET[0]); b.r(x + 2, y + 1, 3, 2, BRACKET[1]); b.r(x + 4, y + 2, 2, 2, BRACKET[0]); b.r(x, y + 8, 2, 1, INK)
-    }
-
-    val shelf: Buf get() = shelf(3)
-    private val shelves = HashMap<Int, Buf>()
-
-    fun shelf(rows: Int): Buf = synchronized(shelves) { shelves.getOrPut(rows) { paintShelf(rows) } }
-
-    private fun paintShelf(rows: Int): Buf {
-        val h = shelfH(rows)
-        val b = Buf(SW, h)
-        wall(b, SW, h, 108.0, 12.0, 190.0)
-        for (y in (0 until rows.coerceAtLeast(3)).map { plank(it) }) {
-            plank(b, y, SW)
-            if (y + 7 < h) { bracket(b, 8, y + 7); bracket(b, SW - 14, y + 7) }
-        }
-        b.r(107, 0, 1, 5, rgb(0x0c0806))
-        val shade = Buf(26, 10)
-        for (j in 0 until 8) {
-            val w = 5 + j * 1.5
-            shade.box((13 - w).roundToInt(), j, (w * 2).roundToInt(), 1, Pal.teal, lift = .1 - j * .03)
-        }
-        shade.r(1, 8, 24, 1, Pal.gold[2]); shade.r(2, 8, 22, 1, Pal.gold[1])
-        b.draw(shade.outlined(), 94, 3)
-        b.r(103, 13, 10, 2, rgb(0xfff6c8)); b.r(105, 13, 6, 1, WHITE)
-        return b
+    fun shelf(g: G, rows: Int) {
+        val h = shelfH(rows).toFloat()
+        wall(g, 0f, 0f, SW.toFloat(), h, 108f, 14f, 200f)
+        for (r in 0 until rows.coerceAtLeast(3)) plank(g, plank(r), SW)
+        val lamp = Img["scene_lamp"]
+        val lw = 26f
+        val lh = lw * lamp.height / lamp.width
+        g.image(lamp, 108 - lw / 2, -lh * .42f, lw, lh)
     }
 
     /** The plate under a toy, in its metal, its bar showing the winding left and a dot per alloy step. */
-    fun plate(b: Buf, cx: Int, by: Int, wind: Float, alloy: Int = 0) {
+    fun plate(g: G, cx: Int, by: Int, wind: Float, alloy: Int = 0, today: Boolean = false) {
         val m = Pal.metals[alloy.coerceIn(0, Pal.metals.size - 1)]
-        b.r(cx - 12, by + 1, 24, 6, INK); b.r(cx - 11, by + 2, 22, 4, m[2]); b.r(cx - 11, by + 2, 22, 1, m[0])
-        b.r(cx - 9, by + 3, 18, 2, DARK)
-        val n = (18 * wind).roundToInt()
-        b.r(cx - 9, by + 3, n, 1, Pal.gold[1]); b.r(cx - 9, by + 4, n, 1, Pal.gold[2])
-        for (i in 0 until alloy) b.set(cx - 2 * alloy + 1 + i * 4, by + 6, m[0])
+        val x = cx - 12f
+        val y = by + 1.6f
+        g.round(x, y, 24, 6, 2, Brush.verticalGradient(listOf(col(m[0]), col(m[1]), col(m[2])), g.u(y), g.u(y + 6)))
+        g.round(x + 2.2f, y + 1.8f, 19.6f, 2.4f, 1.2f, INKC.copy(alpha = .8f))
+        if (wind > 0) g.round(x + 2.2f, y + 1.8f, 19.6f * wind.coerceIn(0f, 1f), 2.4f, 1.2f, Brush.verticalGradient(listOf(Color(0xFFFFF0A0), Color(0xFFE8A82A)), g.u(y + 1.8f), g.u(y + 4.2f)))
+        for (i in 0 until alloy) g.circle(cx - 2f * alloy + 1 + i * 4, y + 7.6f, .9f, col(m[0]))
+        // Wound today: a little teal medal with a tick at the plate's right end.
+        if (today) {
+            val mx = cx + 13.5f; val my = y + 3f
+            g.circle(mx, my + .3f, 3.6f, Color.Black.copy(alpha = .35f))
+            g.circle(mx, my, 3.4f, Brush.radialGradient(listOf(Color(0xFF8AD8CC), Color(0xFF3FA098), Color(0xFF26665E)), g.o(mx - 1, my - 1), g.u(4.5f)))
+            val p = androidx.compose.ui.graphics.Path().apply {
+                moveTo(g.u(mx - 1.6f), g.u(my + .1f)); lineTo(g.u(mx - .4f), g.u(my + 1.3f)); lineTo(g.u(mx + 1.8f), g.u(my - 1.2f))
+            }
+            g.path(p, Color.White, .75f)
+        }
     }
 
-    private val FLAGS = listOf(Pal.red, Pal.brass, Pal.teal, Pal.pink, Pal.blue)
+    private val FLAGS = listOf(0xd24a32, 0xf0c040, 0x3fa098, 0xea86a6, 0x4d84c8)
 
     /** Bunting across the top shelf: every toy was wound today. */
-    fun garland(b: Buf, ms: Long) {
-        val y0 = 10
-        for (x in 2 until SW - 2) {
-            val y = y0 + (sin(PI * x / (SW - 4)) * 14).roundToInt()
-            b.set(x, y, INK)
-            if (x % 12 == 6) {
-                val f = FLAGS[(x / 12) % FLAGS.size]
-                val sway = if (((ms / 400) + x / 12) % 2 == 0L) 0 else 1
-                for (j in 0 until 6) for (i in -3 + j / 2..3 - j / 2) b.set(x + i + if (j > 2) sway else 0, y + 1 + j, if (j == 5 || i == -3 + j / 2 || i == 3 - j / 2) INK else f[if (i < 0) 0 else 1])
-            }
+    fun garland(g: G, ms: Long) {
+        fun yAt(x: Float) = 9 + sin(PI * (x - 2) / (SW - 4)).toFloat() * 14
+        val p = androidx.compose.ui.graphics.Path()
+        for (i in 0..54) { val x = 2 + i * (SW - 4) / 54f; if (i == 0) p.moveTo(g.u(x), g.u(yAt(x))) else p.lineTo(g.u(x), g.u(yAt(x))) }
+        g.path(p, Color(0xFF3A2414), .5f)
+        var x = 8f
+        var k = 0
+        while (x < SW - 6) {
+            val y = yAt(x)
+            val sway = sin(ms / 420.0 + k).toFloat() * 1.2f
+            val c = col(FLAGS[k % FLAGS.size])
+            g.path(g.pathOf(x - 3.6f to y, x + 3.6f to y, x + sway to y + 8), c)
+            g.path(g.pathOf(x - 3.6f to y, x to y, x + sway * .5f to y + 4), Color.White.copy(alpha = .18f))
+            x += 12; k++
         }
     }
 
     /** The question mark over the empty place a blueprint toy will take. */
-    fun query(b: Buf, cx: Int, by: Int) {
-        val c = rgb(0x9ab8b2)
-        b.r(cx - 1, by - 30, 3, 2, c); b.r(cx + 1, by - 28, 2, 3, c); b.r(cx, by - 25, 2, 2, c); b.r(cx, by - 22, 2, 2, c)
+    fun query(g: G, cx: Int, by: Int) = g.text("?", cx, by - 18, 18, Color(0xFF9AB8B2).copy(alpha = .9f))
+
+    /** A thick wooden top, its surface at y. */
+    private fun counter(g: G, y: Float, w: Float) {
+        val img = Img["scene_counter"]
+        val h = (w + 6) * img.height / img.width
+        g.image(img, -3, y - h * .1f, w + 6, h)
     }
 
-    val bench: Buf by lazy {
-        val b = Buf(EW, EH)
-        wall(b, EW, EH, 54.0, -6.0, 100.0)
-        for (i in 0 until EW) for (j in ETOP until EH) {
-            val g = sin(i * .12 + j * 1.3 + sin(i * .04) * 2) > .85
-            b.set(i, j, when { j == ETOP -> WOOD[0]; j == ETOP + 1 -> WOOD[1]; g -> WOOD[4]; j > ETOP + 5 -> WOOD[3]; else -> WOOD[2] })
-        }
-        b
+    fun bench(g: G) {
+        wall(g, 0f, 0f, EW.toFloat(), EH.toFloat(), 54f, -6f, 110f)
+        g.rect(0, ETOP + 4, EW, EH - ETOP, Color(0xFF4A2C16))
+        counter(g, ETOP.toFloat(), EW.toFloat())
     }
 
     /** The progress of a set, as a brass gauge set in the bench. */
-    fun gauge(b: Buf, p: Float) {
-        b.r(8, ETOP + 5, EW - 16, 4, INK); b.r(9, ETOP + 6, EW - 18, 2, DARK)
-        val n = ((EW - 18) * p.coerceIn(0f, 1f)).roundToInt()
-        b.r(9, ETOP + 6, n, 1, Pal.gold[1]); b.r(9, ETOP + 7, n, 1, Pal.gold[2])
+    fun gauge(g: G, p: Float) {
+        val x = 10f; val y = ETOP + 6.5f; val w = EW - 20f
+        g.round(x - .6f, y - .6f, w + 1.2f, 4.2f, 2.1f, Color(0xFF2A170C).copy(alpha = .85f))
+        g.round(x, y, w, 3, 1.5f, Color(0xFF3A2414))
+        if (p > 0) g.round(x, y, w * p.coerceIn(0f, 1f), 3, 1.5f, Brush.verticalGradient(listOf(Color(0xFFFFF0A0), Color(0xFFF0C040), Color(0xFFC08A20)), g.u(y), g.u(y + 3)))
     }
 
-    val box: Buf by lazy {
-        val b = Buf(BW, BH)
-        wall(b, BW, BH, 108.0, 44.0, 160.0)
-        val wood = Buf(BW, 62); wood.box(0, 0, BW, 62, Pal.brown, lift = -.2); b.draw(wood, 0, 0)
-        b.r(4, 4, BW - 8, 54, DARK)
-        plank(b, TABLE, BW)
-        b.r(0, TABLE + 7, BW, BH - TABLE - 7, WOOD[3])
-        b
+    /** The music box on the table: its inlaid wooden case, open, with dark velvet behind the drum and the comb. */
+    fun box(g: G) {
+        wall(g, 0f, 0f, BW.toFloat(), BH.toFloat(), 108f, 40f, 180f)
+        // The box's shadow on the wall, then the case and its velvet.
+        g.round(6, 6, BW - 8, 74, 6, Color.Black.copy(alpha = .35f))
+        g.rect(10, 9, BW - 20, 64, Brush.verticalGradient(listOf(Color(0xFF2A0E12), Color(0xFF4A1A20), Color(0xFF2A0E12)), g.u(9), g.u(73)))
+        g.nine(Img["scene_box_frame"], 3, 2, BW - 6, 78, intArrayOf(94, 90, 95, 89), floatArrayOf(9f, 9f, 9f, 9f))
+        plank(g, TABLE, BW)
+        g.rect(0, TABLE + 9, BW, BH - TABLE - 9, Brush.verticalGradient(listOf(Color(0xFF4A2C16), Color(0xFF2A170C)), g.u(TABLE + 9), g.u(BH)))
     }
 
-    private fun drumRows(b: Buf, x0: Int, x1: Int, y0: Int, y1: Int) {
-        for (j in y0 until y1) {
-            val n = (j - y0 + .5) / (y1 - y0) * 2 - 1
-            val l = -.7 * n + .6 * sqrt(1 - n * n)
-            for (i in x0 until x1) b.set(i, j, tone(l + bay(i, j) * .2, Pal.brass, false))
+    /** A note rising from a toy as its pin sounds: [t] 0..1 of its flight, in the toy's colour. */
+    fun note(g: G, x: Float, y: Float, t: Float, c: Int, seed: Int) {
+        val a = (if (t < .15f) t / .15f else 1 - (t - .15f) / .85f).coerceIn(0f, 1f)
+        val xx = x + sin(t * 6.0 + seed).toFloat() * 3f
+        val yy = y - t * 34f
+        val col = col(c, a)
+        val s = .8f + .4f * (seed % 3) / 2f
+        g.at(xx, yy, deg = -14f, sx = s, sy = s) {
+            g.oval(xx, yy, 2.4f, 1.8f, col)
         }
+        g.line(xx + 2f * s, yy - .3f, xx + 2f * s, yy - 9 * s, col, .7f)
+        if (seed % 2 == 0) g.path(g.pathOf(xx + 2f * s to yy - 9 * s, xx + 5f * s to yy - 6.5f * s, xx + 2f * s to yy - 7.2f * s), col)
+        g.circle(xx, yy, 4.5f * s, Color(0xFFFFF0B0).copy(alpha = .12f * a))
     }
 
-    private fun pin(b: Buf, x: Int, y: Int, t: Toy, over: Boolean) {
-        b.r(x - 1, y - 1, 4, 4, INK)
-        b.r(x, y, 2, 2, if (over) Pal.silver[2] else Toys[t].main[1])
-        b.p(x, y, WHITE, .8f)
+    private fun drumBrush(g: G, y0: Float, y1: Float) = Brush.verticalGradient(
+        0f to Color(0xFF7A5410), .18f to Color(0xFFFFF2A8), .35f to Color(0xFFF0C040), .75f to Color(0xFFC08A20), 1f to Color(0xFF5A3C0C),
+        startY = g.u(y0), endY = g.u(y1),
+    )
+
+    private fun pin(g: G, x: Float, y: Float, t: Toy, over: Boolean) {
+        g.circle(x, y + .5f, 2.3f, Color.Black.copy(alpha = .35f))
+        g.circle(x, y, 2f, if (over) Color(0xFF968F80) else col(Toys[t].color))
+        g.circle(x - .6f, y - .6f, .7f, Color.White.copy(alpha = .75f))
     }
 
-    /** The day as a flat strip of drum: time across, the toy's note down, and a red line at now. */
     /** Hours between the long ticks and the labels under the drum: whatever divides the day evenly. */
     fun hourStep(len: Int): Int {
         val hours = (len / 60).coerceAtLeast(1)
@@ -198,55 +190,60 @@ object Scenes {
     }
 
     /** Where an hour of the day falls across the strip, 0..1 of its width. */
-    fun stripX(min: Int, len: Int) = (6 + min.coerceIn(0, len) * (STRIP_W - 12) / len) / STRIP_W.toFloat()
+    fun stripX(min: Int, len: Int) = (6 + min.coerceIn(0, len) * (STRIP_W - 12f) / len) / STRIP_W
 
-    fun strip(b: Buf, pins: List<DrumPin>, len: Int, now: Int?) {
-        val w = STRIP_W
-        val h = STRIP_H
-        drumRows(b, 0, w, 0, h)
-        b.r(0, 0, w, 1, INK); b.r(0, h - 1, w, 1, INK)
+    /** The day as a flat strip of drum: time across, the toy's note down, and a red line at now. */
+    fun strip(g: G, pins: List<DrumPin>, len: Int, now: Int?) {
+        val w = STRIP_W.toFloat()
+        val h = STRIP_H.toFloat()
+        g.round(0, 0, w, h, 6, drumBrush(g, 0f, h))
         val hours = len / 60
         for (k in 0..hours) {
             val x = 6 + k * (w - 12) / hours.coerceAtLeast(1)
-            val tall = if (k % hourStep(len) == 0) 4 else 2
-            b.r(x, 1, 1, tall, Pal.brass[3]); b.r(x, h - 1 - tall, 1, tall, Pal.brass[3])
+            val tall = if (k % hourStep(len) == 0) 4f else 2f
+            g.line(x, 1, x, 1 + tall, Color(0xFF7A5410), .5f); g.line(x, h - 1 - tall, x, h - 1, Color(0xFF7A5410), .5f)
         }
         if (now != null) {
             val nx = 6 + now.coerceIn(0, len) * (w - 12) / len
-            b.r(nx + 1, 1, w - nx - 1, h - 2, rgb(0x1e130c), .35f)
-            b.r(nx, 0, 1, h, Pal.red[1]); b.r(nx - 1, 0, 3, 2, Pal.red[2])
+            g.round(nx, 0, w - nx, h, 6, INKC.copy(alpha = .32f))
+            g.line(nx, 0, nx, h, Color(0xFFD24A32), .9f)
+            g.circle(nx, 1.5f, 1.8f, Color(0xFFD24A32))
         }
-        for (p in pins) pin(b, 6 + p.min.coerceIn(0, len) * (w - 12) / len, noteRow(p.toy, 5, h - 12), p.toy, p.over)
+        for (p in pins) pin(g, 6 + p.min.coerceIn(0, len) * (w - 12) / len, noteRow(p.toy, 6f, h - 12), p.toy, p.over)
     }
 
     /**
      * The music box, playing: the drum turns under the comb at [play] minutes into the day; each tooth shakes
      * for a moment after its note ([plucked] holds the time of each toy's last note).
      */
-    fun drum(b: Buf, pins: List<DrumPin>, len: Int, play: Double, plucked: LongArray, nowMs: Long, playing: Boolean = true) {
+    fun drum(g: G, pins: List<DrumPin>, len: Int, play: Double, plucked: LongArray, nowMs: Long, playing: Boolean = true) {
         val pxm = .6
-        drumRows(b, COMB - 6, BW - 5, CY0, CY1)
+        val x0 = COMB - 6f; val x1 = DRUM_END
+        g.round(x0, CY0, x1 - x0, CY1 - CY0, 3, drumBrush(g, CY0, CY1))
         for (k in 0..len / 60) {
-            val x = (COMB + (k * 60 - play) * pxm).roundToInt()
-            if (x < COMB - 6 || x > BW - 6) continue
-            b.r(x, CY0 + 1, 1, 3, Pal.brass[3]); b.r(x, CY1 - 4, 1, 3, Pal.brass[3])
+            val x = (COMB + (k * 60 - play) * pxm).toFloat()
+            if (x < x0 || x > x1) continue
+            g.line(x, CY0 + 1, x, CY0 + 3.5f, Color(0xFF7A5410), .5f); g.line(x, CY1 - 3.5f, x, CY1 - 1, Color(0xFF7A5410), .5f)
         }
         for (p in pins) {
-            val x = (COMB + (p.min - play) * pxm).roundToInt()
-            if (x < COMB - 6 || x > BW - 7) continue
-            pin(b, x, noteRow(p.toy, CY0 + 3, CY1 - CY0 - 8), p.toy, p.over)
+            val x = (COMB + (p.min - play) * pxm).toFloat()
+            if (x < x0 + 2 || x > x1 - 2) continue
+            pin(g, x, noteRow(p.toy, CY0 + 4, CY1 - CY0 - 8), p.toy, p.over)
         }
-        b.r(COMB - 7, CY0, 1, CY1 - CY0, INK); b.r(BW - 5, CY0, 1, CY1 - CY0, INK)
-        for (j in CY0 until CY1) for (i in 6 until 16) b.set(i, j, tone(-.5 * ((i - 6) / 10.0 * 2 - 1) + .4 + bay(i, j) * .2, Pal.silver, false))
+        // The cylinder's ends, then the comb's base and its teeth.
+        g.rect(x0, CY0, 3, CY1 - CY0, Brush.horizontalGradient(listOf(Color(0x99000000), Color.Transparent), g.u(x0), g.u(x0 + 3)))
+        g.rect(x1 - 3, CY0, 3, CY1 - CY0, Brush.horizontalGradient(listOf(Color.Transparent, Color(0x99000000)), g.u(x1 - 3), g.u(x1)))
+        g.round(14, CY0, 10, CY1 - CY0, 2, Brush.horizontalGradient(listOf(Color(0xFFFFFFFF), Color(0xFFB8B2A4), Color(0xFF6F6A62)), g.u(14), g.u(24)))
         for (t in Toy.entries) {
-            val y = noteRow(t, CY0 + 3, CY1 - CY0 - 8)
+            val y = noteRow(t, CY0 + 4, CY1 - CY0 - 8)
             val pl = nowMs - plucked[t.ordinal] < 260
-            val v = if (pl) (if ((nowMs / 45) % 2 == 0L) 1 else -1) else 0
-            b.r(16, y - 1, COMB - 16 + v, 3, INK)
-            b.r(16, y, COMB - 17 + v, 1, if (pl) WHITE else if (t.ordinal % 2 == 0) Pal.silver[1] else Pal.silver[2])
+            val v = if (pl) sin(nowMs / 18.0).toFloat() * .8f else 0f
+            g.round(22, y - 1f + v * .3f, COMB - 22f + v, 2, 1, Brush.verticalGradient(
+                listOf(if (pl) Color.White else Color(0xFFF0EEE8), Color(0xFF8A857C)), g.u(y - 1), g.u(y + 1),
+            ))
         }
-        b.r(COMB, 2, 1, CY1 - 2, Pal.red[1])
-        if (playing && play > 0) b.r(4, CY1 + 1, ((BW - 8) * (play / len).coerceIn(0.0, 1.0)).roundToInt(), 1, Pal.gold[1])
+        g.line(COMB, CY0 - 2, COMB, CY1 + 2, Color(0xFFD24A32).copy(alpha = .9f), .7f)
+        if (playing && play > 0) g.round(14, CY1 + 3.4f, (DRUM_END - 14) * (play / len).coerceIn(0.0, 1.0).toFloat(), 1.4f, .7f, Color(0xFFFFD24A))
     }
 
     // The weekend fair's stall.
@@ -255,99 +252,61 @@ object Scenes {
     const val COUNTER = 70
     val FAIR_SLOT = intArrayOf(62, 154)
 
-    /** The stall: a striped awning over a wooden counter; on weekdays the awning is rolled up. */
-    fun stall(open: Boolean): Buf = synchronized(stalls) { stalls.getOrPut(open) { paintStall(open) } }
-    private val stalls = HashMap<Boolean, Buf>()
-
-    private fun paintStall(open: Boolean): Buf {
-        val b = Buf(FW, FH)
-        wall(b, FW, FH, 108.0, 20.0, if (open) 160.0 else 70.0)
-        // Posts.
-        for (x in listOf(10, FW - 14)) { val post = Buf(4, FH - 6); post.box(0, 0, 4, FH - 6, Pal.brown); b.draw(post.outlined(), x - 1, 4) }
-        // The awning: red and cream stripes with a scalloped edge.
-        val depth = if (open) 16 else 6
-        for (y in 4 until 4 + depth) for (x in 6 until FW - 6) {
-            val stripe = ((x - 6) / 12) % 2 == 0
-            val r = if (stripe) Pal.red else Pal.white
-            val l = .55 - (y - 4) / depth.toDouble() * .5 + bay(x, y) * .2
-            b.set(x, y, tone(l, r, false))
-        }
-        for (x in 6 until FW - 6) {
-            val k = (x - 6) % 12
-            val drop = if (open) (if (k in 3..8) 3 else if (k in 1..10) 2 else 1) else 0
-            val stripe = ((x - 6) / 12) % 2 == 0
-            for (j in 0 until drop) b.set(x, 4 + depth + j, if (stripe) Pal.red[2] else Pal.white[2])
-            b.set(x, 4 + depth + drop, INK)
-        }
-        b.r(6, 3, FW - 12, 1, INK)
-        // Bunting of light bulbs under the awning when open.
-        if (open) for (x in 16 until FW - 16 step 14) { b.r(x, 26, 2, 2, Pal.gold[0]); b.r(x, 28, 2, 1, Pal.gold[2]) }
-        // The counter.
-        for (i in 6 until FW - 6) {
-            b.set(i, COUNTER, WOOD[0]); b.set(i, COUNTER + 1, WOOD[1])
-            for (j in 2 until FH - COUNTER) {
-                val g = sin(i * .11 + j * 1.9 + sin(i * .03) * 2) > .8
-                b.set(i, COUNTER + j, if (j == 2) WOOD[2] else if (g) WOOD[4] else WOOD[3])
+    /** The stall: a striped awning over a wooden counter; on weekdays the awning is rolled up and the light is low. */
+    fun stall(g: G, open: Boolean, ms: Long) {
+        wall(g, 0f, 0f, FW.toFloat(), FH.toFloat(), 108f, 26f, if (open) 170f else 90f, if (open) 1f else .5f)
+        for (x in listOf(10f, FW - 14f)) g.round(x, 6, 4, FH - 10, 1.2f, Brush.horizontalGradient(listOf(Color(0xFFDC9C64), Color(0xFFA2643A), Color(0xFF6E3E20)), g.u(x), g.u(x + 4)))
+        if (open) {
+            val a = Img["scene_awning"]
+            val ah = 26f
+            g.image(a, 2, 1, FW - 4, ah)
+            for ((i, x) in (20 until FW - 16 step 16).withIndex()) {
+                val on = .75f + .25f * sin(ms / 300.0 + i * 1.3).toFloat()
+                g.circle(x, 30, 3.5f, Color(0xFFFFE9A0).copy(alpha = .18f * on))
+                g.circle(x, 30, 1.4f, Color(0xFFFFF4C8).copy(alpha = on))
             }
+        } else {
+            val a = Img["scene_awning_rolled"]
+            g.image(a, 2, 1, FW - 4, 9)
         }
-        b.r(6, COUNTER - 1, FW - 12, 1, INK)
-        return b
+        counter(g, COUNTER.toFloat(), FW.toFloat())
     }
 
     /** A paper price tag hanging off the counter. */
-    fun tag(b: Buf, cx: Int, sold: Boolean) {
-        b.line(cx, COUNTER + 2, cx, COUNTER + 5, INK)
-        b.r(cx - 6, COUNTER + 5, 13, 8, INK); b.r(cx - 5, COUNTER + 6, 11, 6, if (sold) Pal.teal[1] else Pal.white[1])
-        b.r(cx - 3, COUNTER + 8, 7, 1, if (sold) Pal.teal[3] else Pal.white[3]); b.r(cx - 3, COUNTER + 10, 5, 1, if (sold) Pal.teal[3] else Pal.white[3])
+    fun tag(g: G, cx: Int, sold: Boolean) {
+        val y = COUNTER + 3f
+        g.line(cx, y, cx, y + 3.5f, INKC, .5f)
+        g.round(cx - 6.5f, y + 3.5f, 13, 8, 1.6f, if (sold) Color(0xFF3FA098) else Color(0xFFF4ECD8))
+        val ink = if (sold) Color(0xFF153C38) else Color(0xFF8A7E66)
+        g.line(cx - 3.5f, y + 6.5f, cx + 3.5f, y + 6.5f, ink, .7f); g.line(cx - 3.5f, y + 8.8f, cx + 1.5f, y + 8.8f, ink, .7f)
     }
 
     // The capsule machine.
     const val MW = 48
     const val MH = 64
-    private val CAP_COLORS = listOf(Pal.red, Pal.brass, Pal.teal, Pal.pink, Pal.blue, Pal.green)
-    val capsules: List<Buf> by lazy {
-        CAP_COLORS.map { c ->
-            val g = Buf(7, 7)
-            g.ell(3.5, 3.5, 3.5, 3.5, c, spec = true, clip = { _, y -> y <= 3 })
-            g.ell(3.5, 3.5, 3.5, 3.5, Pal.white, spec = true, clip = { _, y -> y > 3 })
-            g.r(0, 3, 7, 1, c[2])
-            g.outlined()
-        }
-    }
-    private val machine: Buf by lazy {
-        val g = Buf(46, 62)
-        g.ell(23.0, 19.0, 17.0, 17.0, Pal.white, lift = .1); g.ell(23.0, 19.0, 15.4, 15.4, Pal.white, erase = true)
-        g.box(15, 1, 16, 3, Pal.red, spec = true); g.r(22, 0, 2, 1, Pal.gold[1])
-        g.box(7, 34, 32, 4, Pal.red, spec = true); g.box(9, 38, 28, 22, Pal.red, spec = true); g.box(5, 58, 36, 4, Pal.red, lift = -.25)
-        g.ell(23.0, 45.0, 5.0, 5.0, Pal.silver, spec = true); g.ell(23.0, 45.0, 2.2, 2.2, Pal.silver, lift = -.3)
-        g.r(16, 52, 14, 6, DARK); g.r(16, 52, 14, 1, Pal.red[3])
-        g.outlined()
-    }
-    private val GLASS = rgb(0xd8ece6)
-    private val GLASS_EDGE = rgb(0xb8d6ce)
-    private val SPOTS = listOf(13 to 24, 20 to 27, 27 to 25, 33 to 22, 16 to 17, 24 to 19, 30 to 15, 18 to 10, 26 to 11, 12 to 30, 22 to 32, 30 to 30)
 
-    /** The machine at a moment: capsules rattle while the crank turns, then one drops into the tray. */
-    fun machine(b: Buf, bg: Int, shake: Double, crank: Double, drop: Int?, dropY: Int, ms: Long) {
-        b.r(0, 0, MW, MH, bg)
-        for (j in 0 until MH) for (i in 0 until MW) {
-            val d = hypot(i + .5 - 24, j + .5 - 20)
-            if (d < 15.4) b.set(i, j, if (d > 12) GLASS_EDGE else GLASS)
+    /** The machine at a moment: it rattles while the crank turns, then a capsule rolls out into the tray. */
+    fun machine(g: G, shake: Double, drop: Int?, dropY: Int, ms: Long) {
+        val m = Img["scene_machine"]
+        val h = MH - 2f
+        val w = h * m.width / m.height
+        val rot = (sin(ms / 45.0) * 2.2 * shake).toFloat()
+        g.oval(MW / 2f, MH - 1.5f, w * .42f, 1.6f, Color.Black.copy(alpha = .22f))
+        g.at(MW / 2f, MH - 1f, deg = rot) { g.image(m, (MW - w) / 2, MH - 1f - h, w, h) }
+        if (drop != null) {
+            val cap = Img["scene_capsule"]
+            val p = ((dropY - 40) / 14f).coerceIn(0f, 1f)
+            val s = 5f + 5f * p
+            g.image(cap, MW / 2f - s / 2 + drop % 3 - 1, MH * .62f + p * MH * .2f, s, s, filter = CAPS[drop % CAPS.size])
         }
-        SPOTS.forEachIndexed { k, (x, y) ->
-            val sx = (sin(ms / 60.0 + k * 1.7) * shake * 1.4).roundToInt()
-            val sy = (kotlin.math.cos(ms / 70.0 + k) * shake).roundToInt()
-            b.draw(capsules[k % capsules.size], x - 4 + sx, y - 4 + sy)
-        }
-        for (j in 0 until MH) for (i in 0 until MW) {
-            val d = hypot(i + .5 - 24, j + .5 - 20)
-            if (d in 13.8..15.6 && (i - 24) * -.6 + (j - 20) * -.8 > 4) b.p(i, j, WHITE, .55f)
-        }
-        b.r(15, 10, 2, 4, WHITE, .8f); b.r(17, 8, 2, 2, WHITE, .8f)
-        b.draw(machine, -1, 0)
-        val cs = kotlin.math.cos(crank)
-        val w = 2 * (6 * abs(cs).coerceAtLeast(.15)).roundToInt()
-        b.r(24 - w / 2 - 1, 45, w + 2, 3, INK); b.r(24 - w / 2, 46, w, 1, if (cs > 0) Pal.gold[1] else Pal.gold[2])
-        if (drop != null) b.draw(capsules[drop % capsules.size], 19, dropY - 1)
     }
+
+    /** The capsule art is red; the others are the same capsule turned to other colours. */
+    private val CAPS = listOf(null, hue(.5f, .9f, .2f), hue(.25f, .65f, .7f), hue(.95f, .6f, .75f), hue(.3f, .5f, 1f), hue(.4f, .85f, .35f))
+    private fun hue(r: Float, gg: Float, b: Float) = androidx.compose.ui.graphics.ColorFilter.colorMatrix(androidx.compose.ui.graphics.ColorMatrix(floatArrayOf(
+        .3f * r * 1.6f, .59f * r * 1.6f, .11f * r * 1.6f, 0f, 0f,
+        .3f * gg * 1.6f, .59f * gg * 1.6f, .11f * gg * 1.6f, 0f, 0f,
+        .3f * b * 1.6f, .59f * b * 1.6f, .11f * b * 1.6f, 0f, 0f,
+        0f, 0f, 0f, 1f, 0f,
+    )))
 }

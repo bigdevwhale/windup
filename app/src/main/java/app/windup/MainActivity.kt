@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity() {
         setContent {
             val settings: Settings? by container.settings.settings.collectAsStateWithLifecycle(initialValue = null)
             // Wait for settings so the welcome pages don't flash for someone already here.
-            settings?.let { s -> WindupTheme { WindupRoot(s) } }
+            settings?.let { s -> WindupTheme(s.look) { WindupRoot(s) } }
         }
     }
 }

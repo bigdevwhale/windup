@@ -45,7 +45,7 @@ import app.windup.domain.Ex
 import app.windup.domain.Outcome
 import app.windup.notify.Nudge
 import app.windup.ui.Home
-import app.windup.ui.art.PixelView
+import app.windup.ui.art.Stage
 import app.windup.ui.art.Scenes
 import app.windup.ui.art.St
 import app.windup.ui.art.Toys
@@ -57,6 +57,11 @@ import app.windup.ui.components.TopBar
 import app.windup.ui.shelf.parts
 import app.windup.ui.shelf.run
 import app.windup.ui.theme.C
+import app.windup.ui.components.GuideCard
+import app.windup.ui.components.HelpButton
+import app.windup.ui.components.rememberGuide
+import app.windup.ui.Guides
+import app.windup.ui.components.screen
 import app.windup.ui.theme.T
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -117,13 +122,16 @@ fun ExerciseScreen(h: Home, e: Ex, bonus: Boolean, onClose: () -> Unit, onDone: 
         onDispose { sm.unregisterListener(l) }
     }
 
-    Column(Modifier.fillMaxSize().background(C.paper)) {
+    val guide = Guides.exercise(w)
+    val gs = rememberGuide(h, guide.key)
+    Column(Modifier.fillMaxSize().screen()) {
         TopBar(w.toy(e.toy), w.pattern(e.toy)) {
+            HelpButton(gs, w.t("Подсказка", "Help"))
             Text("${(count * 100 / target).coerceAtMost(100)}%", style = T.Heading.copy(color = C.wallText), modifier = Modifier.clickable(onClick = onClose).padding(4.dp))
         }
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-            PixelView(Scenes.EW, Scenes.EH) { b, dt, _ ->
-                b.copyFrom(Scenes.bench)
+            Stage(Scenes.EW, Scenes.EH) { b, dt, _ ->
+                Scenes.bench(b)
                 // Each click turns the key half a round and lets the toy run a little; a finished set keeps it going.
                 key[0] += (key[1] - key[0]) * (dt / .09).coerceAtMost(1.0)
                 val since = System.currentTimeMillis() - lastRep
@@ -134,6 +142,7 @@ fun ExerciseScreen(h: Home, e: Ex, bonus: Boolean, onClose: () -> Unit, onDone: 
                 Toys.drawAt(b, e.toy, h.parts(e.toy), Scenes.EW / 2, Scenes.ETOP, st, r, alloy = h.s.alloy(e.toy))
                 Scenes.gauge(b, count / target.toFloat())
             }
+            GuideCard(gs, guide, w)
             Panel {
                 Text(w.name(e, step), style = T.Display)
                 Text(w.cue(e), style = T.Body.copy(color = C.muted), modifier = Modifier.padding(top = 6.dp))

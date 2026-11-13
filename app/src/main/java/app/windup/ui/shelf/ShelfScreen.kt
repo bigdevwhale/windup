@@ -26,14 +26,23 @@ import app.windup.domain.date
 import app.windup.domain.minuteOfDay
 import app.windup.ui.Home
 import app.windup.ui.art.DrumPin
-import app.windup.ui.art.PixelView
+import app.windup.ui.art.Stage
 import app.windup.ui.art.Scenes
 import app.windup.ui.art.Toys
 import app.windup.ui.art.rgb
 import app.windup.ui.components.Btn
+import app.windup.ui.components.GuideCard
+import app.windup.ui.components.HelpButton
+import app.windup.ui.components.rememberGuide
+import app.windup.ui.Guides
+import app.windup.ui.components.Caption
+import app.windup.ui.components.Coin
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import app.windup.ui.components.ToyIcon
 import app.windup.ui.components.TopBar
-import app.windup.ui.components.px
+import app.windup.ui.components.card
 import app.windup.ui.theme.C
 import app.windup.ui.theme.T
 
@@ -59,19 +68,25 @@ fun ShelfScreen(h: Home, onToy: (Toy) -> Unit, onWind: () -> Unit) {
     val today = h.todayPins()
     val reading = Days.read(today.map { it.min }, h.elapsed())
     val paraded = h.s.bag.paradeDay == h.nowMs.date(h.zone).toEpochDay()
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+    val guide = Guides.shelf(w)
+    val gs = rememberGuide(h, guide.key)
+    Column(Modifier.fillMaxSize()) {
         val fair = Engine.fairOpen(h.nowMs.date(h.zone))
         TopBar(w.t("Завод", "Windup"), if (fair) w.t("ярмарка открыта — загляни в мастерскую", "the fair is open — see the workshop") else w.t("полка у лампы", "the shelf by the lamp")) {
+            HelpButton(gs, w.t("Подсказка", "Help"))
             Text(w.clock(h.nowMs.minuteOfDay(h.zone)), style = T.Clock)
         }
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+        GuideCard(gs, guide, w)
+        val wound = today.map { it.toy }.toSet()
         val slots = h.s.shelf
         val rows = (slots.size + 2) / 3
-        PixelView(Scenes.SW, Scenes.shelfH(rows), onTap = { x, y ->
+        Stage(Scenes.SW, Scenes.shelfH(rows), onTap = { x, y ->
             val col = (x / (Scenes.SW / 3f)).toInt().coerceIn(0, 2)
             val row = (0 until rows).firstOrNull { y < Scenes.plank(it) + 4 } ?: (rows - 1)
             slots.getOrNull(row * 3 + col)?.let(onToy)
         }) { b, dt, ms ->
-            b.copyFrom(Scenes.shelf(rows))
+            Scenes.shelf(b, rows)
             if (paraded) Scenes.garland(b, ms)
             val now = System.currentTimeMillis()
             slots.forEachIndexed { i, t ->
@@ -88,29 +103,32 @@ fun ShelfScreen(h: Home, onToy: (Toy) -> Unit, onWind: () -> Unit) {
                 val run = run(wind)
                 Toys.step(Toys[t], st, dt, run)
                 Toys.drawAt(b, t, h.parts(t, now), cx, by, st, run, alloy = h.s.alloy(t), jam = jam)
-                Scenes.plate(b, cx, by, wind, h.s.alloy(t))
+                Scenes.plate(b, cx, by, wind, h.s.alloy(t), today = wound.contains(t))
             }
         }
-        Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(w.t("Барабан дня", "Today's drum"), style = T.Title, modifier = Modifier.weight(1f))
+        Btn(w.t("Завести · где ты сейчас?", "Wind up · where are you?"), Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 14.dp), big = true, onClick = onWind)
+        Text(
+            if (paraded) w.t("Парад полки: сегодня заведены все игрушки!", "Shelf parade: every toy has been wound today!")
+            else w.t("✓ на табличке — игрушку сегодня уже заводили. Заведи все — будет парад. Нажми на игрушку — её упражнения.",
+                "✓ on a plate — that toy was wound today. Wind them all for a parade. Tap a toy for its movements."),
+            style = T.Small, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp),
+        )
+        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally), verticalAlignment = Alignment.CenterVertically) {
+            Text(w.pins(today.size), style = T.Button.copy(color = C.ink), modifier = Modifier.clip(RoundedCornerShape(50)).background(C.paper2.copy(alpha = .6f)).padding(horizontal = 12.dp, vertical = 6.dp))
+            Coin(false, h.s.gears, dark = false)
+            Coin(true, h.s.springs, dark = false)
+        }
+        Row(Modifier.fillMaxWidth().padding(end = 20.dp), verticalAlignment = Alignment.CenterVertically) {
+            Caption(w.t("Барабан дня", "Today's drum"), Modifier.weight(1f))
             Text(w.t("ровный ход ${reading.even}%", "even running ${reading.even}%"), style = T.Small)
         }
-        PixelView(Scenes.STRIP_W, Scenes.STRIP_H, Modifier.padding(horizontal = 6.dp)) { b, _, _ ->
+        Stage(Scenes.STRIP_W, Scenes.STRIP_H, Modifier.padding(horizontal = 16.dp)) { b, _, _ ->
             Scenes.strip(b, today, h.settings.wake.len, h.elapsed())
         }
         HourLabels(h.settings.wake.from, h.settings.wake.len)
         ScoreSheet(h)
-        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(w.pins(today.size), style = T.Sub)
-            Text(w.gears(h.s.gears), style = T.Sub)
-            Text(w.springs(h.s.springs), style = T.Sub)
+        Box(Modifier.height(12.dp))
         }
-        Btn(w.t("Завести · где ты сейчас?", "Wind up · where are you?"), Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), onClick = onWind)
-        Text(
-            if (paraded) w.t("Парад полки: сегодня заведены все игрушки!", "Shelf parade: every toy has been wound today!")
-            else w.t("Заведи за день все игрушки — будет парад. Нажми на игрушку — её упражнения.", "Wind every toy in a day for a parade. Tap a toy for its movements."),
-            style = T.Small, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 4.dp),
-        )
     }
 }
 
@@ -123,7 +141,7 @@ fun ScoreSheet(h: Home) {
     val played = Engine.scored(h.s, date, h.settings.wake, h.zone)
     val done = h.s.bag.scoreDay == date.toEpochDay()
     val now = h.elapsed()
-    Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 8.dp).px(if (done) androidx.compose.ui.graphics.Color(0xFFF6DC84) else C.light).padding(horizontal = 10.dp, vertical = 8.dp)) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp).card(if (done) C.glow else C.surface, rivets = true).padding(horizontal = 16.dp, vertical = 12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(w.t("Партитура дня", "Today's score"), style = T.Heading, modifier = Modifier.weight(1f))
             Text(
@@ -136,7 +154,7 @@ fun ScoreSheet(h: Home) {
             notes.forEachIndexed { i, n ->
                 val past = now > n.to && !played[i]
                 Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Box(Modifier.height(38.dp), contentAlignment = Alignment.BottomCenter) { h.Icon(n.toy, 1f) }
+                    Box(Modifier.height(54.dp), contentAlignment = Alignment.BottomCenter) { h.Icon(n.toy, 1f) }
                     Text(w.clock(h.settings.wake.from + n.from).substringBefore(':') + "–" + w.clock(h.settings.wake.from + n.to).substringBefore(':'), style = T.Small)
                     Text(
                         when { played[i] -> "✓"; past -> "·"; now in n.from..n.to -> w.t("сейчас", "now"); else -> "" },
@@ -159,7 +177,7 @@ fun run(wind: Float): Double = when {
 @Composable
 fun HourLabels(from: Int, len: Int) {
     val step = Scenes.hourStep(len)
-    BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = 6.dp).height(18.dp)) {
+    BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = 16.dp).height(18.dp)) {
         val w = constraints.maxWidth
         for (k in 0..len / 60 step step) {
             val x = (Scenes.stripX(k * 60, len) * w).toInt()

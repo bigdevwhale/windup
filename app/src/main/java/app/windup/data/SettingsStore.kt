@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import app.windup.domain.Wake
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +20,10 @@ data class Settings(
     /** Minutes without a pin before a stopped toy asks for its key; 0 = never. */
     val nudge: Int = 90,
     val sound: Boolean = true,
+    /** 0 follows the phone, 1 is always day, 2 always evening. */
+    val look: Int = 0,
+    /** The screens whose guide has been read and put away. */
+    val seen: Set<String> = emptySet(),
 )
 
 class SettingsStore(context: Context) {
@@ -31,6 +36,8 @@ class SettingsStore(context: Context) {
         wake = Wake(this[WAKE_FROM] ?: Wake().from, this[WAKE_TO] ?: Wake().to),
         nudge = this[NUDGE] ?: 90,
         sound = this[SOUND] ?: true,
+        look = this[LOOK] ?: 0,
+        seen = this[SEEN] ?: emptySet(),
     )
 
     suspend fun now(): Settings = settings.first()
@@ -43,6 +50,8 @@ class SettingsStore(context: Context) {
             it[WAKE_TO] = s.wake.to
             it[NUDGE] = s.nudge
             it[SOUND] = s.sound
+            it[LOOK] = s.look
+            it[SEEN] = s.seen
         }
     }
 
@@ -52,5 +61,7 @@ class SettingsStore(context: Context) {
         val WAKE_TO = intPreferencesKey("wake_to")
         val NUDGE = intPreferencesKey("nudge")
         val SOUND = booleanPreferencesKey("sound")
+        val LOOK = intPreferencesKey("look")
+        val SEEN = stringSetPreferencesKey("seen")
     }
 }

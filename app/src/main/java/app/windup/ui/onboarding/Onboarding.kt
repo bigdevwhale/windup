@@ -25,7 +25,7 @@ import app.windup.container
 import app.windup.data.Settings
 import app.windup.domain.Toy
 import app.windup.ui.Words
-import app.windup.ui.art.PixelView
+import app.windup.ui.art.Stage
 import app.windup.ui.art.Scenes
 import app.windup.ui.art.St
 import app.windup.ui.art.Toys
@@ -34,6 +34,7 @@ import app.windup.ui.components.Panel
 import app.windup.ui.components.TopBar
 import app.windup.ui.settings.WakePanel
 import app.windup.ui.theme.C
+import app.windup.ui.components.screen
 import app.windup.ui.theme.T
 
 /** Three pages: the idea, how the shelf works, and the waking day. */
@@ -45,11 +46,11 @@ fun Onboarding(w: Words, settings: Settings) {
     val toys = remember { Toy.entries.associateWith { St() } }
     val ask = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
-    Column(Modifier.fillMaxSize().background(C.paper)) {
+    Column(Modifier.fillMaxSize().screen()) {
         TopBar(w.t("Завод", "Windup"), w.t("${page + 1} из 3", "${page + 1} of 3"))
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-            if (page < 2) PixelView(Scenes.SW, Scenes.SH) { b, dt, _ ->
-                b.copyFrom(Scenes.shelf)
+            if (page < 2) Stage(Scenes.SW, Scenes.SH) { b, dt, _ ->
+                Scenes.shelf(b, 3)
                 for (t in Toy.CORE) {
                     val st = toys.getValue(t)
                     val run = if (page == 0 && t.ordinal % 2 == 1) 0.0 else 1.0

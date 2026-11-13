@@ -6,7 +6,7 @@
 
 ### A little movement, all day long — like winding tin toys.
 
-*We were taught that exercise is an hour a couple of times a week. The body prefers a little, all day long: squats while the kettle boils, a one-leg stand while brushing your teeth, the stairs instead of the lift. Windup is a shelf of nine pixel-art tin toys; a winding lasts two hours, so the key wants turning often — a minute or three at a time. Free, no ads, no account, no internet.*
+*We were taught that exercise is an hour a couple of times a week. The body prefers a little, all day long: squats while the kettle boils, a one-leg stand while brushing your teeth, the stairs instead of the lift. Windup is a shelf of nine illustrated tin toys; a winding lasts two hours, so the key wants turning often — a minute or three at a time. Free, no ads, no account, no internet.*
 
 [![Android CI](https://github.com/bigdevwhale/windup/actions/workflows/android.yml/badge.svg)](https://github.com/bigdevwhale/windup/actions/workflows/android.yml)
 [![Release](https://img.shields.io/github/v/release/bigdevwhale/windup?color=D24A32&label=download&logo=android)](https://github.com/bigdevwhale/windup/releases/latest)
@@ -41,9 +41,8 @@
 ```
 ./gradlew testDebugUnitTest assembleDebug
 ./gradlew -Pdemo assembleDebug          # app.windup.demo with four weeks of windings
-./gradlew testDebugUnitTest -Prender --tests '*RenderArt*'   # toys and scenes to app/build/art
 ```
 
-All art is drawn in code (`ui/art`): shaded tin parts with dithering and auto outlines, a 48×48 frame per toy. Sounds are synthesised on first launch.
+The toys and backdrops are painted illustrations (`res/drawable-nodpi`, generated with Codex's image tool); `ui/art` animates them and draws the light, the drum and the plates as smooth vector shapes. Sounds are synthesised on first launch.
 
-Font: [m6x11](https://managore.itch.io/m6x11) by Daniel Linssen.
+Font: [Nunito](https://fonts.google.com/specimen/Nunito) (SIL Open Font License).

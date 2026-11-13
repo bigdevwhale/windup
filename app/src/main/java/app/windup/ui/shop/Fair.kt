@@ -10,6 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -19,7 +21,7 @@ import app.windup.domain.Rules
 import app.windup.domain.Toy
 import app.windup.domain.date
 import app.windup.ui.Home
-import app.windup.ui.art.PixelView
+import app.windup.ui.art.Stage
 import app.windup.ui.art.Scenes
 import app.windup.ui.art.St
 import app.windup.ui.art.Toys
@@ -56,8 +58,8 @@ fun FairPanel(h: Home) {
             },
             style = T.Small,
         )
-        PixelView(Scenes.FW, Scenes.FH, Modifier.padding(top = 8.dp)) { buf, dt, _ ->
-            buf.copyFrom(Scenes.stall(open))
+        Stage(Scenes.FW, Scenes.FH, Modifier.padding(top = 8.dp).clip(RoundedCornerShape(12.dp))) { buf, dt, ms ->
+            Scenes.stall(buf, open, ms)
             for ((i, t) in listOf(a, b).withIndex()) {
                 val cx = Scenes.FAIR_SLOT[i]
                 val st = sts.getValue(t)

@@ -15,7 +15,7 @@ import app.windup.domain.Outcome
 import app.windup.domain.Rules
 import app.windup.domain.minuteOfDay
 import app.windup.ui.Home
-import app.windup.ui.art.PixelView
+import app.windup.ui.art.Stage
 import app.windup.ui.art.Scenes
 import app.windup.ui.components.Btn
 import app.windup.ui.components.Panel
@@ -42,7 +42,7 @@ fun ResultSheet(h: Home, out: Outcome, onClose: () -> Unit) {
             }
         }
         Panel {
-            PixelView(Scenes.STRIP_W, Scenes.STRIP_H) { b, _, _ -> Scenes.strip(b, h.todayPins(), h.settings.wake.len, h.elapsed()) }
+            Stage(Scenes.STRIP_W, Scenes.STRIP_H) { b, _, _ -> Scenes.strip(b, h.todayPins(), h.settings.wake.len, h.elapsed()) }
             val lines = buildList {
                 if (p.over) add(w.t("Перекрут! Третий завод за полчаса — пружина звенит, деталей нет. Разнеси по дню, мелодия станет богаче.",
                     "Overwound! A third winding inside half an hour — the spring pings and gives no parts. Spread them out and the tune gets richer."))

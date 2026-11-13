@@ -35,6 +35,7 @@ class WindupApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        app.windup.ui.art.Img.init(this)
         container = AppContainer(this)
         Nudge.channel(this)
         container.scope.launch {

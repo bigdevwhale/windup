@@ -5,6 +5,8 @@ import app.windup.domain.Kit
 import app.windup.domain.Place
 import app.windup.domain.Reading
 import app.windup.domain.Toy
+import app.windup.domain.date
+import app.windup.domain.minuteOfDay
 import app.windup.domain.Unit
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -99,6 +101,18 @@ class Words(val ru: Boolean) {
     fun secs(n: Int) = when {
         n >= 120 && n % 60 == 0 -> minutes(n / 60)
         else -> if (ru) "$n сек" else "$n s"
+    }
+
+    /** When a toy was last wound: today at 14:20, yesterday at 9:05, 3 days ago, or never. */
+    fun lastWound(at: Long?, now: Long, zone: java.time.ZoneId): String {
+        if (at == null) return t("ещё ни разу не заводили", "never wound yet")
+        val d = java.time.temporal.ChronoUnit.DAYS.between(at.date(zone), now.date(zone)).toInt()
+        val time = clock(at.minuteOfDay(zone))
+        return when (d) {
+            0 -> t("заводили сегодня в $time", "wound today at $time")
+            1 -> t("заводили вчера в $time", "wound yesterday at $time")
+            else -> if (ru) "заводили ${d} ${plural(d, "день", "дня", "дней")} назад" else "wound $d days ago"
+        }
     }
 
     fun minutes(m: Int) = if (ru) "$m мин" else "$m min"

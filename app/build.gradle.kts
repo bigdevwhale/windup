@@ -121,8 +121,3 @@ dependencies {
     testImplementation(libs.androidx.work.testing)
 }
 
-// The renderers (`-Prender`) draw screens to app/build/art for a look; they're not tests.
-tasks.withType<Test>().configureEach {
-    if (!project.hasProperty("render")) exclude("**/RenderArt*")
-    systemProperty("render.out", layout.buildDirectory.dir("art").get().asFile.absolutePath)
-}
