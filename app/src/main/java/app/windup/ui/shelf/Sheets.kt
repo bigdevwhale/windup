@@ -198,13 +198,15 @@ fun WhereSheet(h: Home, onClose: () -> Unit, onEx: (Ex) -> Unit) {
             Text(w.t("Выбери, где ты, — и полка подскажет, кого завести. Сначала тех, кто стоит или ржавеет.",
                 "Pick where you are and the shelf will suggest who to wind. The stopped and rusty ones first."), style = T.Sub, modifier = Modifier.padding(16.dp))
         } else {
-            val picks = remember(p, shuffle, h.s) { Engine.suggest(h.s, p, h.nowMs) }
+            val due = Engine.due(h.s, h.nowMs, h.zone, h.settings.wake)
+            val picks = remember(p, shuffle, h.s, due) { Engine.suggest(h.s, p, h.nowMs, due = due) }
             Text(w.t("Ключ ждёт у этих:", "The key is waiting for:"), style = T.Sub, modifier = Modifier.padding(start = 16.dp, top = 12.dp, bottom = 2.dp))
             if (picks.isEmpty()) Text(w.t("Здесь ничего не подходит — отметь инвентарь в мастерской.", "Nothing fits here — tick your kit in the workshop."), style = T.Sub, modifier = Modifier.padding(16.dp))
             for (e in picks) {
                 val wind = Engine.wind(h.s, e.toy, h.nowMs)
                 val rust = Engine.rust(h.s, e.toy, h.nowMs)
-                val note = w.toy(e.toy) + ": " + (if (wind > 0) w.t("завода ${(wind * 100).toInt()}%", "${(wind * 100).toInt()}% wound") else w.t("стоит", "stopped")) + (if (rust > .3f) w.t(", ржавеет", ", rusting") else "")
+                val note = (if (e.toy == due) w.t("♪ нота партитуры · ", "♪ today's score · ") else "") +
+                    w.toy(e.toy) + ": " + (if (wind > 0) w.t("завода ${(wind * 100).toInt()}%", "${(wind * 100).toInt()}% wound") else w.t("стоит", "stopped")) + (if (rust > .3f) w.t(", ржавеет", ", rusting") else "")
                 ExCard(h, e, note, onClick = onEx)
             }
             Btn(w.t("Другие варианты", "Something else"), Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), kind = Kind.GHOST) { shuffle++ }

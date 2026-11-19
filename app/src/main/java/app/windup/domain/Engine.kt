@@ -117,9 +117,12 @@ object Engine {
     fun fits(s: State, e: Ex, p: Place): Boolean =
         s.available(e.toy) && p in e.places && (e.kit == null || e.kit in s.bag.kit || p == Place.OUTSIDE && e.kit == Kit.BAR)
 
-    /** Three movements for where you are, one per toy, the stopped and rusty toys first. */
-    fun suggest(s: State, p: Place, now: Long, rnd: Random = Random.Default): List<Ex> {
-        val scored = Catalog.all.filter { fits(s, it, p) }.map { it to (1 - wind(s, it.toy, now)) + rust(s, it.toy, now) * 1.2 + rnd.nextDouble() * .5 }
+    /**
+     * Three movements for where you are, one per toy, the stopped and rusty toys first. The toy of the score's
+     * note that is playing now and not yet played ([due]) goes first whenever it has a movement for the place.
+     */
+    fun suggest(s: State, p: Place, now: Long, rnd: Random = Random.Default, due: Toy? = null): List<Ex> {
+        val scored = Catalog.all.filter { fits(s, it, p) }.map { it to (1 - wind(s, it.toy, now)) + rust(s, it.toy, now) * 1.2 + rnd.nextDouble() * .5 + if (it.toy == due) 10 else 0 }
         return scored.sortedByDescending { it.second }.map { it.first }.distinctBy { it.toy }.take(3)
     }
 
@@ -189,6 +192,15 @@ object Engine {
         val toys = s.toys.shuffled(Random(date.toEpochDay() * 31 + 7)).take(Rules.SCORE_NOTES)
         val q = wake.len / Rules.SCORE_NOTES
         return toys.mapIndexed { i, t -> Note(t, i * q, if (i == toys.size - 1) wake.len else (i + 1) * q) }
+    }
+
+    /** The toy of the score's note for this moment of the day, if that note is not played yet. */
+    fun due(s: State, now: Long, zone: ZoneId, wake: Wake): Toy? {
+        val date = now.date(zone)
+        val m = now.minuteOfDay(zone) - wake.from
+        val notes = score(s, date, wake)
+        val played = scored(s, date, wake, zone)
+        return notes.indices.firstOrNull { m in notes[it].from..notes[it].to && !played[it] }?.let { notes[it].toy }
     }
 
     /** Which notes of the day's score are played. */

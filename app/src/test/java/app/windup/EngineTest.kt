@@ -265,4 +265,33 @@ class EngineTest {
         assertEquals(0f, Engine.rust(got, a, now + 3600_000L), 1e-4f)
         assertFalse(Engine.jammed(got, a, now + 3600_000L))
     }
+
+    @Test fun every_toy_can_be_wound_quietly_at_the_desk() {
+        for (t in Toy.entries) assertTrue("$t has nothing for the desk", Catalog.of(t).any { Place.DESK in it.places })
+        // The desk is quiet: no kit, and nothing that needs the floor, a wall, a door or a towel.
+        val desk = Catalog.all.filter { Place.DESK in it.places }
+        assertTrue(desk.all { it.kit == null })
+        val noisy = listOf("frog.chair", "frog.wall", "monkey.desk", "monkey.dips", "ballet.door", "soldier.angel",
+            "penguin.towel", "acro.towel", "acro.apart", "miner.wall", "clown.toss", "sailor.row")
+        assertTrue(desk.none { it.key in noisy })
+        // Ten each way is twenty in all (#4).
+        assertEquals(20, Catalog.ex("penguin.ankle")!!.target)
+    }
+
+    @Test fun the_score_note_playing_now_is_suggested_first() {
+        val wake = Wake()
+        val notes = Engine.score(State.EMPTY, day, wake)
+        for (n in notes) {
+            val m = wake.from + (n.from + n.to) / 2
+            val now = at(m / 60, m % 60)
+            assertEquals(n.toy, Engine.due(State.EMPTY, now, zone, wake))
+            assertEquals(n.toy, Engine.suggest(State.EMPTY, Place.DESK, now, Random(3), due = n.toy).first().toy)
+        }
+        // Once played, the note is no longer due.
+        val n = notes.first()
+        val m = wake.from + (n.from + n.to) / 2
+        val e = Catalog.of(n.toy).first { Place.DESK in it.places }
+        val (s, _) = State.EMPTY.add(e, e.target, at(m / 60, m % 60))
+        assertNull(Engine.due(s, at(m / 60, m % 60 + 1), zone, wake))
+    }
 }

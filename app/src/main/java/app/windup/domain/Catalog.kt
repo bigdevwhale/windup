@@ -36,19 +36,20 @@ object Catalog {
 
     val all: List<Ex> = listOf(
         // The frog: squats and jumps.
-        e("frog.chair", FROG, "Присед у стула", "Chair squat", "Коснись сиденья и встань. Пятки на полу, колени смотрят за носки.", "Touch the seat and stand. Heels down, knees track the toes.", 10, setOf(DESK, KETTLE, CALL),
+        e("frog.chair", FROG, "Присед у стула", "Chair squat", "Коснись сиденья и встань. Пятки на полу, колени смотрят за носки.", "Touch the seat and stand. Heels down, knees track the toes.", 10, setOf(KETTLE, CALL),
             ladder = "Присед на стул|Sit-to-stand;Присед у стула|Chair-tap squat;Полный присед|Full squat;Присед с паузой|Pause squat;Пистолет на стул|Pistol to a chair", step = 1, pocket = true),
         e("frog.lunge", FROG, "Выпады назад", "Reverse lunges", "Шаг назад, колено почти до пола. Ноги по очереди.", "Step back, knee almost to the floor. Alternate legs.", 10, setOf(KETTLE, CALL), pocket = true),
         e("frog.jump", FROG, "Лягушачьи прыжки", "Frog jumps", "Глубокий присед — и прыжок вперёд. Приземляйся мягко.", "Deep squat, then jump forward. Land softly.", 6, setOf(OUTSIDE, KETTLE), pocket = true),
-        e("frog.wall", FROG, "Стульчик у стены", "Wall sit", "Спина к стене, бёдра параллельно полу. Дыши.", "Back to the wall, thighs level with the floor. Breathe.", 30, setOf(KETTLE, DESK), S),
+        e("frog.wall", FROG, "Стульчик у стены", "Wall sit", "Спина к стене, бёдра параллельно полу. Дыши.", "Back to the wall, thighs level with the floor. Breathe.", 30, setOf(KETTLE), S),
         e("frog.split", FROG, "Болгарские выпады", "Split squats", "Задняя нога на стуле, опускайся прямо вниз. По 5 на ногу.", "Back foot on a chair, sink straight down. Five a leg.", 10, setOf(KETTLE)),
         e("frog.sumo", FROG, "Сумо-присед", "Sumo squat", "Широкая стойка, носки врозь, спина ровная.", "Wide stance, toes out, back straight.", 12, setOf(CALL, KETTLE, TEETH), pocket = true),
         e("frog.goblet", FROG, "Гоблет-присед", "Goblet squat", "Гиря у груди, локти внутри коленей.", "Kettlebell at the chest, elbows inside the knees.", 10, setOf(KIT), kit = Kit.KETTLEBELL, pocket = true),
+        e("frog.extend", FROG, "Разгибание ноги сидя", "Seated leg extension", "Сидя, выпрями одну ногу и держи на весу. Потом другую.", "Seated, straighten one leg and hold it in the air. Then the other.", 20, setOf(DESK, CALL), S),
 
         // The monkey: pushing.
-        e("monkey.desk", MONKEY, "Отжимания от стола", "Desk push-ups", "Руки на край стола, тело — доска. Грудью к краю.", "Hands on the desk edge, body a plank. Chest to the edge.", 10, setOf(DESK, KETTLE),
+        e("monkey.desk", MONKEY, "Отжимания от стола", "Desk push-ups", "Руки на край стола, тело — доска. Грудью к краю.", "Hands on the desk edge, body a plank. Chest to the edge.", 10, setOf(KETTLE),
             ladder = "От стены|Wall push-ups;От стола|Desk push-ups;От колен|Knee push-ups;От пола|Floor push-ups;Лучник|Archer push-ups", step = 1),
-        e("monkey.dips", MONKEY, "Обратные отжимания", "Chair dips", "Ладони на сиденье стула за спиной, локти уходят назад.", "Palms on the chair seat behind you, elbows go back.", 10, setOf(DESK, KETTLE)),
+        e("monkey.dips", MONKEY, "Обратные отжимания", "Chair dips", "Ладони на сиденье стула за спиной, локти уходят назад.", "Palms on the chair seat behind you, elbows go back.", 10, setOf(KETTLE)),
         e("monkey.press", MONKEY, "Ладонь в ладонь", "Palm press", "Сожми ладони перед грудью изо всех сил. Никто не заметит.", "Press your palms together as hard as you can. Nobody will notice.", 20, setOf(DESK, QUEUE, CALL), S),
         e("monkey.pike", MONKEY, "Отжимания домиком", "Pike push-ups", "Таз вверх, макушкой к полу между ладоней.", "Hips high, crown of the head down between the hands.", 6, setOf(KETTLE)),
         e("monkey.db", MONKEY, "Жим гантелей стоя", "Dumbbell press", "Над головой, без прогиба в пояснице.", "Overhead, no arch in the lower back.", 10, setOf(KIT), kit = Kit.DUMBBELLS),
@@ -69,13 +70,13 @@ object Catalog {
             ladder = "У опоры|Holding on;Без опоры|Free;С закрытыми глазами|Eyes closed;На носке|On the toes;На подушке|On a pillow", step = 1),
         e("ballet.swallow", BALLET, "Ласточка", "Single-leg reach", "Наклон вперёд на одной ноге, вторая уходит назад. Спина прямая.", "Hinge forward on one leg, the other goes back. Straight back.", 6, setOf(KETTLE)),
         e("ballet.hips", BALLET, "Круги бёдрами", "Hip circles", "Широкие медленные круги тазом, как хула-хуп.", "Wide slow circles with the hips, like a hula hoop.", 10, setOf(CALL, KETTLE)),
-        e("ballet.door", BALLET, "Раскрытие в дверях", "Doorway stretch", "Предплечья на косяк, шаг вперёд — грудь раскрывается.", "Forearms on the frame, step through — the chest opens.", 30, setOf(DESK), S),
+        e("ballet.door", BALLET, "Раскрытие в дверях", "Doorway stretch", "Предплечья на косяк, шаг вперёд — грудь раскрывается.", "Forearms on the frame, step through — the chest opens.", 30, setOf(KETTLE, CALL), S),
         e("ballet.fold", BALLET, "Наклон к носкам", "Forward fold", "Колени мягкие, тянись макушкой вниз.", "Soft knees, let the head hang down.", 30, setOf(KETTLE, TEETH), S),
         e("ballet.neck", BALLET, "Наклоны шеи", "Neck tilts", "Ухо к плечу, медленно, без рывков.", "Ear to shoulder, slowly, no jerks.", 8, setOf(DESK, QUEUE, CALL)),
         e("ballet.cat", BALLET, "Кошка-корова", "Cat-cow", "На четвереньках: спина колесом, потом прогиб.", "On all fours: round the back, then arch it.", 8, setOf(KETTLE)),
 
         // The drummer: posture and walking.
-        e("soldier.angel", SOLDIER, "Ангел у стены", "Wall angels", "Затылок, лопатки и локти у стены. Руки вверх-вниз.", "Head, shoulder blades and elbows on the wall. Arms up and down.", 10, setOf(DESK, KETTLE)),
+        e("soldier.angel", SOLDIER, "Ангел у стены", "Wall angels", "Затылок, лопатки и локти у стены. Руки вверх-вниз.", "Head, shoulder blades and elbows on the wall. Arms up and down.", 10, setOf(KETTLE, CALL)),
         e("soldier.march", SOLDIER, "Марш на месте", "March in place", "Колени высоко, руки работают.", "Knees high, arms swinging.", 40, setOf(CALL, KETTLE), pocket = true),
         e("soldier.stairs", SOLDIER, "Лестница", "Stairs", "Три этажа пешком вместо лифта.", "Three floors on foot instead of the lift.", 3, setOf(QUEUE, OUTSIDE), Unit.FLOORS),
         e("soldier.blades", SOLDIER, "Сведение лопаток", "Blade squeeze", "Сведи лопатки и опусти вниз — будто прячешь их в задние карманы.", "Squeeze the shoulder blades and drop them, as if into your back pockets.", 12, setOf(DESK, QUEUE)),
@@ -103,20 +104,21 @@ object Catalog {
         // The penguin: feet and calves.
         e("penguin.calf", PENGUIN, "Подъёмы на носки", "Calf raises", "Медленно вверх, пауза, медленно вниз.", "Slowly up, pause, slowly down.", 20, setOf(QUEUE, TEETH, CALL, DESK),
             ladder = "На двух|Both feet;С паузой|With a pause;На одной|One foot;С края ступеньки|Off a step;С рюкзаком|With a backpack", step = 0),
-        e("penguin.ankle", PENGUIN, "Круги стопами", "Ankle circles", "Под столом, по десять в каждую сторону.", "Under the desk, ten each way.", 10, setOf(DESK)),
+        e("penguin.ankle", PENGUIN, "Круги стопами", "Ankle circles", "Под столом, по десять в каждую сторону.", "Under the desk, ten each way.", 20, setOf(DESK)),
         e("penguin.heels", PENGUIN, "Ходьба на пятках", "Heel walk", "Носки вверх, мелкими шагами.", "Toes up, small steps.", 20, setOf(KETTLE, CALL), S),
-        e("penguin.towel", PENGUIN, "Собрать полотенце", "Towel scrunch", "Пальцами ног подтягивай полотенце к себе.", "Scrunch a towel towards you with your toes.", 10, setOf(DESK)),
+        e("penguin.towel", PENGUIN, "Собрать полотенце", "Towel scrunch", "Пальцами ног подтягивай полотенце к себе.", "Scrunch a towel towards you with your toes.", 10, setOf(TEETH, KETTLE)),
         e("penguin.pogo", PENGUIN, "Прыжки на носках", "Pogo hops", "Мелкие пружинистые прыжки, пятки не касаются пола.", "Small springy hops, heels never touch.", 20, setOf(KETTLE, OUTSIDE), pocket = true),
         e("penguin.rope", PENGUIN, "Скакалка", "Jump rope", "Мягко на носках.", "Light on the toes.", 50, setOf(KIT, OUTSIDE), kit = Kit.ROPE, pocket = true),
 
         // The acrobat: pulling.
-        e("acro.towel", ACRO, "Тяга полотенца", "Door towel row", "Полотенце за ручку двери, отклонись назад и тяни себя.", "Towel round a door handle, lean back and pull yourself in.", 10, setOf(KETTLE, DESK)),
-        e("acro.apart", ACRO, "Растянуть полотенце", "Towel pull-apart", "Тяни концы полотенца в стороны изо всех сил.", "Pull the ends of a towel apart as hard as you can.", 20, setOf(DESK, CALL), S),
+        e("acro.towel", ACRO, "Тяга полотенца", "Door towel row", "Полотенце за ручку двери, отклонись назад и тяни себя.", "Towel round a door handle, lean back and pull yourself in.", 10, setOf(KETTLE)),
+        e("acro.apart", ACRO, "Растянуть полотенце", "Towel pull-apart", "Тяни концы полотенца в стороны изо всех сил.", "Pull the ends of a towel apart as hard as you can.", 20, setOf(CALL), S),
         e("acro.table", ACRO, "Тяга под столом", "Under-table row", "Лёжа под крепким столом, подтягивай грудь к краю.", "Lying under a sturdy table, pull your chest to the edge.", 8, setOf(KETTLE)),
         e("acro.hang", ACRO, "Вис на турнике", "Bar hang", "Просто висеть. Плечи чуть вниз.", "Just hang. Shoulders slightly down.", 20, setOf(KIT, OUTSIDE), S, kit = Kit.BAR),
         e("acro.pullup", ACRO, "Подтягивания", "Pull-ups", "Подбородок над перекладиной, без рывков.", "Chin over the bar, no swinging.", 5, setOf(KIT, OUTSIDE), kit = Kit.BAR,
             ladder = "Негативные|Negatives;С резинкой|Band-assisted;Полные|Full;С паузой|With a pause;Лучник|Archer", step = 1),
         e("acro.band", ACRO, "Тяга резинки", "Band row", "Резинка в двери, локти назад, лопатки вместе.", "Band in the door, elbows back, blades together.", 12, setOf(KIT), kit = Kit.BAND),
+        e("acro.desk", ACRO, "Тянуть стол на себя", "Desk pull", "Пальцы под край столешницы, тяни к себе, лопатки вместе.", "Fingers under the desk edge, pull it towards you, blades together.", 20, setOf(DESK), S),
 
         // The fair toys. The skier: legs, side to side.
         e("skier.skater", SKIER, "Конькобежец", "Skater hops", "Прыжок вбок на одну ногу, вторая заходит за спину. Туда-обратно.", "Hop sideways onto one leg, the other sweeps behind. Back and forth.", 12, setOf(KETTLE, OUTSIDE), pocket = true),
@@ -124,6 +126,7 @@ object Catalog {
         e("skier.tuck", SKIER, "Стойка лыжника", "Skier's tuck", "Полуприсед, корпус вперёд, руки как с палками. Держи.", "Half squat, chest forward, arms as if holding poles. Hold.", 30, setOf(KETTLE, TEETH), S),
         e("skier.walk", SKIER, "Шаги в полуприседе", "Crab walk", "В полуприседе приставными шагами вбок и обратно.", "In a half squat, side-step one way and back.", 20, setOf(KETTLE, OUTSIDE)),
         e("skier.band", SKIER, "Шаги с резинкой", "Band side steps", "Резинка над коленями, шаги вбок, колени не сводить.", "Band above the knees, step sideways, knees apart.", 20, setOf(KIT), kit = Kit.BAND),
+        e("skier.knees", SKIER, "Сжать колени", "Knee squeeze", "Сидя, кулак между коленями — своди их изо всех сил.", "Seated, a fist between the knees — squeeze them together hard.", 20, setOf(DESK), S),
 
         // The hare: jumps and the heart.
         e("hare.jacks", HARE, "Прыжки звёздочкой", "Jumping jacks", "Руки и ноги врозь — и вместе. Мягко на носках.", "Arms and legs apart and together. Light on the toes.", 30, setOf(KETTLE, OUTSIDE), pocket = true),
@@ -131,6 +134,7 @@ object Catalog {
         e("hare.bounds", HARE, "Прыжки с ноги на ногу", "Bounds", "Длинные пружинистые скачки, как через лужи.", "Long springy leaps, as if over puddles.", 16, setOf(OUTSIDE), pocket = true),
         e("hare.burpee", HARE, "Бёрпи", "Burpees", "Присед, упор лёжа, обратно — и вверх.", "Squat, plank, back in — and up.", 6, setOf(KETTLE),
             ladder = "Без прыжка|Step-back;С прыжком|Classic;С отжиманием|With a push-up", step = 0),
+        e("hare.feet", HARE, "Быстрые ступни", "Fast feet", "Сидя, частые шажки носками под столом, как бег.", "Seated, quick tiny steps on the toes under the desk, like running.", 30, setOf(DESK), S),
 
         // The diver: breathing.
         e("diver.box", DIVER, "Дыхание квадратом", "Box breathing", "Вдох на 4, пауза на 4, выдох на 4, пауза на 4.", "In for 4, hold for 4, out for 4, hold for 4.", 60, setOf(DESK, QUEUE, KETTLE), S),
@@ -139,21 +143,23 @@ object Catalog {
         e("diver.shrug", DIVER, "Плечи к ушам — и сброс", "Shrug and drop", "Подними плечи к ушам, задержи — и уронив, выдохни.", "Lift the shoulders to the ears, hold — drop them and breathe out.", 8, setOf(DESK, QUEUE, CALL)),
 
         // The miner: pushing and carrying.
-        e("miner.wall", MINER, "Толкай стену", "Wall push", "Упрись руками в стену и толкай, будто сдвигаешь её.", "Hands on the wall and push as if to move it.", 20, setOf(DESK, KETTLE), S),
+        e("miner.wall", MINER, "Толкай стену", "Wall push", "Упрись руками в стену и толкай, будто сдвигаешь её.", "Hands on the wall and push as if to move it.", 20, setOf(KETTLE, CALL), S),
         e("miner.sled", MINER, "Санки", "Towel sled", "Ладони на полотенце, толкай его по полу вперёд на полусогнутых.", "Hands on a towel, push it across the floor, legs bent.", 20, setOf(KETTLE), S),
         e("miner.bags", MINER, "Пакеты из магазина", "Shopping carry", "Неси покупки ровно, плечи вниз, не сутулься.", "Carry the shopping tall, shoulders down, no slouch.", 60, setOf(OUTSIDE), S),
         e("miner.row", MINER, "Тяга рюкзака в наклоне", "Backpack row", "Наклон, спина прямая, тяни рюкзак к поясу.", "Hinge forward, straight back, pull the bag to the waist.", 12, setOf(KIT), kit = Kit.BACKPACK),
+        e("miner.press", MINER, "Давить на стол", "Desk press", "Ладони на столешнице, дави вниз изо всех сил. Плечи опущены.", "Palms on the desk, press down as hard as you can. Shoulders low.", 20, setOf(DESK), S),
 
         // The clown: coordination.
         e("clown.cross", CLOWN, "Перекрёстные касания", "Cross crawl", "Локоть к противоположному колену, по очереди.", "Elbow to the opposite knee, side to side.", 20, setOf(CALL, KETTLE)),
         e("clown.line", CLOWN, "Ходьба по линии", "Heel-to-toe walk", "Пятка к носку, как по канату. Взгляд вперёд.", "Heel to toe, as on a tightrope. Eyes ahead.", 20, setOf(KETTLE, OUTSIDE)),
-        e("clown.toss", CLOWN, "Подбросить и поймать", "Toss and catch", "Подбрось что-нибудь мягкое и поймай другой рукой.", "Toss something soft and catch it with the other hand.", 20, setOf(DESK, CALL)),
+        e("clown.toss", CLOWN, "Подбросить и поймать", "Toss and catch", "Подбрось что-нибудь мягкое и поймай другой рукой.", "Toss something soft and catch it with the other hand.", 20, setOf(CALL)),
         e("clown.stork", CLOWN, "Цапля с поворотом", "Turning stork", "На одной ноге медленно поворачивай голову влево-вправо.", "On one leg, slowly turn your head left and right.", 20, setOf(TEETH, QUEUE), S),
+        e("clown.nose", CLOWN, "Нос — ухо", "Nose and ear", "Одна рука на нос, другая на противоположное ухо. Хлопок — и поменяй.", "One hand on the nose, the other on the opposite ear. Clap and swap.", 10, setOf(DESK, QUEUE, CALL)),
 
         // The sailor: shoulders.
         e("sailor.circles", SAILOR, "Круги руками", "Arm circles", "Прямые руки в стороны, круги вперёд, потом назад.", "Straight arms out, circles forward, then back.", 20, setOf(KETTLE, OUTSIDE)),
         e("sailor.rolls", SAILOR, "Вращение плечами", "Shoulder rolls", "Плечи вверх, назад и вниз — большими кругами.", "Shoulders up, back and down — big circles.", 12, setOf(DESK, QUEUE, CALL)),
-        e("sailor.row", SAILOR, "Гребля полотенцем", "Towel row", "Полотенце в руках, тяни на себя, как весло, сводя лопатки.", "A towel in both hands, pull like an oar, squeezing the blades.", 12, setOf(DESK, KETTLE)),
+        e("sailor.row", SAILOR, "Гребля полотенцем", "Towel row", "Полотенце в руках, тяни на себя, как весло, сводя лопатки.", "A towel in both hands, pull like an oar, squeezing the blades.", 12, setOf(KETTLE)),
         e("sailor.ytw", SAILOR, "Буквы Y и T", "Y and T raises", "Наклонись, руки буквой Y, потом T — поднимай без рывков.", "Lean forward, arms in a Y, then a T — lift slowly.", 10, setOf(KETTLE)),
         e("sailor.raise", SAILOR, "Махи гантелями", "Lateral raises", "Гантели в стороны до плеч, медленно вниз.", "Dumbbells out to shoulder height, slowly down.", 12, setOf(KIT), kit = Kit.DUMBBELLS),
     )

@@ -6,8 +6,8 @@
 ## 0. Перед стартом
 
 - **Нужен AAB, не APK.** Релизный workflow теперь кладёт в GitHub Release `Windup-v<версия>.aab` рядом с
-  `Windup.apk`. В релизах до 1.1.1 включительно AAB нет — для первой загрузки нужен **`Windup-v1.1.2.aab`**
-  (запустить Release с версией `1.1.2` или запушить тег `v1.1.2`).
+  `Windup.apk` (начиная с 1.1.2). Для первой загрузки — **`Windup-v1.1.3.aab`** из v1.1.3 (в ней тихий
+  «За столом» и подсказка партитуры, #3–#5).
 - **Языки.** AAB собирается без разбиения по языкам (`bundle.language.enableSplit = false`), иначе Play
   ставит только язык телефона и переключение языка в настройках перестаёт работать. Не удаляйте этот блок.
 - **Регистрация имени пакета.** Play Console при создании приложения пишет «You can't use this package
@@ -162,7 +162,7 @@ WorkManager — `WAKE_LOCK`, `RECEIVE_BOOT_COMPLETED`, `ACCESS_NETWORK_STATE`, `
 ## 6. Релиз
 
 1. Testing → **Closed testing** (для нового аккаунта; иначе сразу Production или Internal testing) → Create new release.
-2. Загрузить `Windup-v1.1.2.aab` из GitHub Release.
+2. Загрузить `Windup-v1.1.3.aab` из GitHub Release.
 3. Release name — номер версии. Release notes:
 
 ```

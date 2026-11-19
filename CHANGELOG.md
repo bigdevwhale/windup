@@ -6,6 +6,25 @@ line "<!-- tg", then 2-4 short lines in Russian for users (what is new, what is 
 then close it like any HTML comment. The release notes carry it, and the chat bot posts those lines.
 -->
 
+## [1.1.3] - 2026-11-19
+
+### Changed
+- **"At the desk" is quiet again:** it now suggests only what you can do sitting or standing at your own desk without kit, a wall, a door, a towel or the floor. Squats, desk push-ups, chair dips, wall sits, wall angels, the doorway stretch and the towel movements moved to "By the kettle" and "On a call" (#5).
+- **Today's score helps you play it:** in "Where are you?" the toy of the note playing now comes first whenever it has a movement for that place, marked "♪ today's score" (#3).
+
+### Added
+- Six quiet desk movements, so every toy, the fair ones too, can be wound at work: seated leg extension (frog), desk pull (acrobat), desk press (miner), nose and ear (clown), knee squeeze (skier) and fast feet (hare). 90 movements in all (#3).
+
+### Fixed
+- Ankle circles are ten each way, so the set is 20, not 10 (#4).
+
+<!-- tg
+Заводилка 1.1.3: «За столом» теперь только то, что можно делать тихо у своего стола, — без стены, двери, полотенца и пола.
+Шесть новых упражнений для стола: у каждой игрушки, и у ярмарочных, есть что завести на работе.
+В «Где ты сейчас?» первой идёт игрушка из партитуры дня, если ей есть что предложить.
+Круги стопами: по десять в каждую сторону — значит, 20.
+-->
+
 ## [1.1.2] - 2026-11-19
 
 ### Changed
