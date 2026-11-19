@@ -6,6 +6,15 @@ line "<!-- tg", then 2-4 short lines in Russian for users (what is new, what is 
 then close it like any HTML comment. The release notes carry it, and the chat bot posts those lines.
 -->
 
+## [1.1.2] - 2026-11-19
+
+### Changed
+- **Ready for Google Play:** the first version to go to Google Play, with a privacy policy in English and Russian. The APK on GitHub and the app from Play are signed with the same key and update each other.
+
+<!-- tg
+Заводилка 1.1.2 готовится к выходу в Google Play. Версия из Play и APK с GitHub подписаны одним ключом и обновляют друг друга.
+-->
+
 ## [1.1.1] - 2026-11-13
 
 ### Changed
