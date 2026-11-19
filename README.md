@@ -9,12 +9,15 @@
 *We were taught that exercise is an hour a couple of times a week. The body prefers a little, all day long: squats while the kettle boils, a one-leg stand while brushing your teeth, the stairs instead of the lift. Windup is a shelf of nine illustrated tin toys; a winding lasts two hours, so the key wants turning often — a minute or three at a time. Free, no ads, no account, no internet.*
 
 [![Android CI](https://github.com/bigdevwhale/windup/actions/workflows/android.yml/badge.svg)](https://github.com/bigdevwhale/windup/actions/workflows/android.yml)
+[![Google Play](https://img.shields.io/badge/Google_Play-get_it-34A853?logo=googleplay&logoColor=white)](https://play.google.com/store/apps/details?id=app.windup)
 [![Release](https://img.shields.io/github/v/release/bigdevwhale/windup?color=D24A32&label=download&logo=android)](https://github.com/bigdevwhale/windup/releases/latest)
 ![Android 9+](https://img.shields.io/badge/Android-9%2B-3C9D50?logo=android&logoColor=white)
 ![Languages](https://img.shields.io/badge/lang-EN%20%7C%20RU-6C77B6)
 [![License: MIT](https://img.shields.io/badge/license-MIT-4C7A35)](LICENSE)
 
-**English** · [Русский](README.ru.md) · [Changelog](CHANGELOG.md)
+**[Get it on Google Play](https://play.google.com/store/apps/details?id=app.windup)** · [Download APK](https://github.com/bigdevwhale/windup/releases/latest/download/Windup.apk) · Android 9+
+
+**English** · [Русский](README.ru.md) · [Website](https://bigdevwhale.github.io/stillcraft/apps/windup/) · [Changelog](CHANGELOG.md)
 
 <img src="docs/screenshots/en/1-shelf.jpg" width="200" /> <img src="docs/screenshots/en/3-where.jpg" width="200" /> <img src="docs/screenshots/en/4-exercise.jpg" width="200" /> <img src="docs/screenshots/en/5-box.jpg" width="200" /> <img src="docs/screenshots/en/9-stats.jpg" width="200" /> <img src="docs/screenshots/en/10-evening.jpg" width="200" />
 </div>

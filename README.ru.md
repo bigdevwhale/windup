@@ -8,9 +8,12 @@
 
 *Нас приучили, что спорт — это час пару раз в неделю. Телу естественнее иначе: присесть, пока закипает чайник, постоять на одной ноге, пока чистишь зубы, подняться по лестнице. «Заводилка» — полка из девяти нарисованных жестяных игрушек; завода хватает на два часа, и крутить ключ нужно часто — по минуте-три. Бесплатно, без рекламы, без аккаунта и без интернета.*
 
+[![Google Play](https://img.shields.io/badge/Google_Play-скачать-34A853?logo=googleplay&logoColor=white)](https://play.google.com/store/apps/details?id=app.windup)
 [![Скачать](https://img.shields.io/github/v/release/bigdevwhale/windup?color=D24A32&label=скачать&logo=android)](https://github.com/bigdevwhale/windup/releases/latest)
 
-[English](README.md) · **Русский** · [Изменения](CHANGELOG.md)
+**[Скачать в Google Play](https://play.google.com/store/apps/details?id=app.windup)** · [Скачать APK](https://github.com/bigdevwhale/windup/releases/latest/download/Windup.apk) · Android 9+
+
+[English](README.md) · **Русский** · [Сайт](https://bigdevwhale.github.io/stillcraft/apps/windup/) · [Изменения](CHANGELOG.md)
 
 <img src="docs/screenshots/ru/1-shelf.jpg" width="200" /> <img src="docs/screenshots/ru/3-where.jpg" width="200" /> <img src="docs/screenshots/ru/4-exercise.jpg" width="200" /> <img src="docs/screenshots/ru/5-box.jpg" width="200" /> <img src="docs/screenshots/ru/9-stats.jpg" width="200" /> <img src="docs/screenshots/ru/10-evening.jpg" width="200" />
 </div>
