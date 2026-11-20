@@ -35,10 +35,19 @@ interface ShelfDao {
     @Query("SELECT * FROM meta") suspend fun meta(): List<MetaRow>
 
     @Insert suspend fun insert(p: PinRow): Long
+    @Insert suspend fun insert(p: List<PinRow>)
+    @Query("DELETE FROM pin") suspend fun clearPins()
+    @Query("DELETE FROM meta") suspend fun clearMeta()
     @Upsert suspend fun meta(m: List<MetaRow>)
 
     @Transaction
     suspend fun pin(p: PinRow, m: List<MetaRow>): Long = insert(p).also { meta(m) }
+
+    /** Everything on this phone gives way to a shelf brought from another. */
+    @Transaction
+    suspend fun replace(p: List<PinRow>, m: List<MetaRow>) {
+        clearPins(); clearMeta(); insert(p); meta(m)
+    }
 }
 
 @Database(entities = [PinRow::class, MetaRow::class], version = 1, exportSchema = true)

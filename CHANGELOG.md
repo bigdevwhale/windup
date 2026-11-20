@@ -6,6 +6,17 @@ line "<!-- tg", then 2-4 short lines in Russian for users (what is new, what is 
 then close it like any HTML comment. The release notes carry it, and the chat bot posts those lines.
 -->
 
+## [1.2.0] - 2026-11-20
+
+### Added
+- **To another phone:** Settings → "To another phone" saves the whole shelf (pins, toys, metals, paints, parts and your settings) to a file, and "Load from a file" on the new phone puts it in place of what's there, after asking. No account and no network: the file goes wherever you save it.
+
+<!-- tg
+Заводилка 1.2.0: прогресс можно перенести на другой телефон.
+Настройки → «На другой телефон» → «Сохранить в файл»: штифты, игрушки, металлы, раскраски, детали и настройки — в одном файле.
+На новом телефоне — «Загрузить из файла». Без аккаунтов и интернета: файл лежит там, куда вы его сохранили.
+-->
+
 ## [1.1.3] - 2026-11-19
 
 ### Changed

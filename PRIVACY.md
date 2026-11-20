@@ -1,6 +1,6 @@
 # Windup — Privacy Policy
 
-*Last updated: 19 November 2026*
+*Last updated: 20 November 2026*
 
 Windup («Заводилка» in Russian) is a little-movement-all-day app for Android with a shelf of tin toys.
 It is published as open source at <https://github.com/bigdevwhale/windup>.
@@ -35,6 +35,9 @@ start after reboot, network state); the app uses no network.
 
 - **Community links** in the settings open Telegram or your browser, only when you tap them; what you do there is
   governed by those services' own policies.
+- **Transfer file.** "To another phone" in the settings saves your sets, toys and settings to a file only when you
+  tap it, to the place you pick (a folder, a cloud drive, a messenger). That file then belongs to you and to the place
+  you saved it; the app sends it nowhere itself.
 - **Device backup.** Android may include the app's data in your own device backup to your Google account, if you
   have that turned on in system settings.
 
@@ -63,7 +66,7 @@ Questions: open an issue at <https://github.com/bigdevwhale/windup/issues>.
 
 # Заводилка — Политика конфиденциальности
 
-*Обновлено: 19 ноября 2026*
+*Обновлено: 20 ноября 2026*
 
 «Заводилка» (Windup по-английски) — приложение для движения понемногу весь день, под Android, с полкой жестяных
 игрушек. Код открыт: <https://github.com/bigdevwhale/windup>.
@@ -98,6 +101,9 @@ Questions: open an issue at <https://github.com/bigdevwhale/windup/issues>.
 
 - **Ссылки сообщества** в настройках открывают Telegram или браузер, только когда вы на них нажимаете; дальше
   действуют правила этих сервисов.
+- **Файл переноса.** «На другой телефон» в настройках сохраняет подходы, игрушки и настройки в файл, только когда вы
+  нажимаете кнопку, и туда, куда вы выберете (папка, облачный диск, мессенджер). Дальше файл ваш и того места, где он
+  лежит; само приложение никуда его не отправляет.
 - **Резервная копия устройства.** Android может включить данные приложения в вашу собственную резервную копию в
   аккаунте Google, если она включена в настройках системы.
 

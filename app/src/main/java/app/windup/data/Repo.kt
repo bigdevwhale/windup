@@ -98,6 +98,12 @@ class Repo(db: ShelfDb, private val clock: () -> Long = System::currentTimeMilli
         if (b.start == 0L) { save(b.copy(start = at)); _state.value = load() }
     }
 
+    /** A shelf brought from another phone takes the place of this one, pins and bag together. */
+    suspend fun replace(pins: List<Pin>, bag: Bag) = lock.withLock {
+        dao.replace(pins.map { p -> PinRow(at = p.at, toy = p.toy.name, ex = p.ex, done = p.done, target = p.target, gears = p.gears, springs = p.springs, over = p.over) }, Bags.write(bag))
+        _state.value = load()
+    }
+
     /** For the demo: pins straight in, with the bag they leave behind. */
     suspend fun seed(pins: List<Pin>, bag: Bag) = lock.withLock {
         for (p in pins) dao.insert(PinRow(at = p.at, toy = p.toy.name, ex = p.ex, done = p.done, target = p.target, gears = p.gears, springs = p.springs, over = p.over))
